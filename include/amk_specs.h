@@ -45,22 +45,22 @@
 /**
  *  @brief control word values
  */
-#define bInverterOn 0x01    ///< Controller enable
-#define bDcOn 0x02          ///< HV activation
-#define bEnable 0x04 ///< Driver enable
-#define bErrorReset 0x08    ///< Remove error
+#define cbInverterOn 0x01    ///< Controller enable
+#define cbDcOn 0x02          ///< HV activation
+#define cbEnable 0x04 ///< Driver enable
+#define cbErrorReset 0x08    ///< Remove error
 
 /**
  * @brief status word values
  */
-#define bSystemReady 0x01 ///< System ready (SBM)
-#define bError 0x02      ///< Error
-#define bWarn 0x04       ///< Warning
-#define bQuitDcOn 0x08   ///< HV activation acknowledgment
-#define bDcOn 0x10       ///< HV activation level
-#define bQuitInverterOn 0x20 ///< Controller enable acknowledgment
-#define bInverterOn 0x40     ///< Controller enable level
-#define bDerating 0x80       ///< Derating
+#define bSystemReady 0x100 ///< System ready (SBM)
+#define bError 0x200      ///< Error
+#define bWarn 0x400      ///< Warning
+#define bQuitDcOn 0x800   ///< HV activation acknowledgment
+#define bDcOn 0x1000       ///< HV activation level
+#define bQuitInverterOn 0x2000 ///< Controller enable acknowledgment
+#define bInverterOn 0x4000     ///< Controller enable level
+#define bDerating 0x8000       ///< Derating
 
 /**
  * @brief parametri
@@ -99,18 +99,5 @@ typedef struct
     uint16_t error_info;   ///< Informazioni errori.
     int16_t temp_igbt;     ///< Temperatura IGBT.
 } ActualValues2;
-
-class CANMessage {
-public:
-    uint16_t can_id; ///< ID del messaggio CAN
-    uint8_t data[8]; ///< Dati del messaggio CAN
-
-    CANMessage(uint16_t can_id){ this->can_id = can_id; }
-
-    void set_can_id(uint16_t can_id) { this->can_id = can_id; }
-    uint16_t get_can_id() const { return can_id; }
-
-    virtual ~CANMessage() = default;
-};
 
 #endif

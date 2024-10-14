@@ -2,19 +2,24 @@
 #include <CANSAME5x.h>
 #include "amk_specs.h"
 #include "Inverter.h"
+#include "CANMessage.h"
 
 CANSAME5x CAN;
 CANMessage can_msg;
 Inverter inverters[4] = {
-    Inverter(AMK_INVERTER_1_NODE_ADDRESS),
-    Inverter(AMK_INVERTER_2_NODE_ADDRESS),
-    Inverter(AMK_INVERTER_3_NODE_ADDRESS),
-    Inverter(AMK_INVERTER_4_NODE_ADDRESS)};
+    Inverter(INVERTER_1_NODE_ADDRESS),
+    Inverter(INVERTER_2_NODE_ADDRESS),
+    Inverter(INVERTER_3_NODE_ADDRESS),
+    Inverter(INVERTER_4_NODE_ADDRESS)};
 
 void init_device();
 void start_can_bus(int speed);
 void receive_message(int packetSize);
-byte get_node_address_from_can_id(long can_id);
+bool send_message(CANMessage can_msg);
+void check_status(Inverter& inverter);
+uint16_t get_node_address_from_can_id(long can_id);
+ActualValues1 parse_actual_values_1(byte data[8]);
+ActualValues2 parse_actual_values_2(byte data[8]);
 
 void setup()
 {
@@ -25,7 +30,10 @@ void setup()
 
 void loop()
 {
-  //ogni ciclo controllo lo stato di ogni inverter
+  for(Inverter &inverter : inverters)
+  {
+    check_status(inverter);
+  }
 }
 
 void init_device()
@@ -63,7 +71,7 @@ void receive_message(int packetSize)
   {
     // memorizzazione del messaggio nel buffer data
     can_msg.set_can_id(CAN.packetId());
-    byte node_address = get_node_address_from_can_id(can_msg.get_can_id());
+    uint16_t node_address = get_node_address_from_can_id(can_msg.get_can_id());
     uint16_t base_address = can_msg.get_can_id() - node_address;
     can_msg.data[7] = CAN.read();
     can_msg.data[6] = CAN.read();
@@ -97,8 +105,16 @@ void receive_message(int packetSize)
   }
 }
 
+bool send_message(CANMessage can_msg)
+{
+  CAN.beginPacket(can_msg.get_can_id());
+  size_t bytesSent = CAN.write(can_msg.data, 8);
+  CAN.endPacket();
+  return (bytesSent == 8);
+}
+
 // TODO: Implementare la funzione get_node_address_from_can_id
-byte get_node_address_from_can_id(long can_id)
+uint16_t get_node_address_from_can_id(long can_id)
 {
   // Implementare il codice per estrarre l'indirizzo del nodo da can_id
   // e restituirelo
@@ -123,4 +139,74 @@ ActualValues2 parse_actual_values_2(byte data[8])
   actual_values_2.error_info = data[3] | (data[2] << 8);
   actual_values_2.temp_igbt = data[1] | (data[0] << 8);
   return actual_values_2;
+}
+
+CANMessage parse_setpoints_1(Setpoints1 setpoints_1, uint16_t node_address)
+{
+  CANMessage can_msg;
+  can_msg.set_can_id(SETPOINTS_1_BASE_ADDRESS + node_address);
+  can_msg.data[7] = setpoints_1.control & 0xFF;
+  can_msg.data[6] = (setpoints_1.control >> 8) & 0xFF;
+  can_msg.data[5] = setpoints_1.target_velocity & 0xFF;
+  can_msg.data[4] = (setpoints_1.target_velocity >> 8) & 0xFF;
+  can_msg.data[3] = setpoints_1.torque_limit_positive & 0xFF;
+  can_msg.data[2] = (setpoints_1.torque_limit_positive >> 8) & 0xFF;
+  can_msg.data[1] = setpoints_1.torque_limit_negative & 0xFF;
+  can_msg.data[0] = (setpoints_1.torque_limit_negative >> 8) & 0xFF;
+  return can_msg;
+}
+
+void check_status(Inverter& inverter)
+{
+    // Implementare il controllo dello stato dell'inverter
+    // usando i valori di actual_values_1
+
+    uint16_t status = inverter.get_actual_values_1().status;
+
+    if(status & bError)
+    {
+        Serial.printf("error");
+        // controlla di che errore si tratta
+        return;
+    }
+    if ((status & bSystemReady) == bSystemReady)
+    {
+        // invio di bDcOn = 1 dal control byte
+        inverter.set_setpoints_1(Setpoints1{cbDcOn, 0, 0, 0});
+        send_message(parse_setpoints_1(inverter.get_setpoints_1(), inverter.get_node_address()));
+        return;
+    }
+    if ((status & (bSystemReady | bDcOn)) == (bSystemReady | bDcOn))
+    {
+        Serial.printf("DcOn activated");
+        return;
+    }
+    if((status & (bSystemReady | bDcOn | bQuitDcOn)) == (bSystemReady | bDcOn | bQuitDcOn))
+    {
+        // invio di torque limit pos e neg = 0
+        Serial.printf("Sending torque limit pos and neg = 0");
+        inverter.set_setpoints_1(Setpoints1{cbDcOn, 0, 0, 0});
+        send_message(parse_setpoints_1(inverter.get_setpoints_1(), inverter.get_node_address()));
+        
+        // invio di bEnable = 1
+        Serial.printf("Sending driver enable = 1");
+        inverter.set_setpoints_1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
+        send_message(parse_setpoints_1(inverter.get_setpoints_1(), inverter.get_node_address()));
+        
+        // invio di bInverterOn = 1
+        Serial.printf("Sending inverter on = 1");
+        inverter.set_setpoints_1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 0, 0, 0});
+        send_message(parse_setpoints_1(inverter.get_setpoints_1(), inverter.get_node_address()));
+        
+        return;
+    }
+    if((status & (bSystemReady | bDcOn | bQuitDcOn | bInverterOn)) == (bSystemReady | bDcOn | bQuitDcOn | bInverterOn))
+    {
+        // invio dei setpoint
+        Serial.printf("Sending setpoint");
+        inverter.set_setpoints_1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 500, 100, 0});
+        return;
+    }
+
+    // disattivazione dell'inverter
 }
