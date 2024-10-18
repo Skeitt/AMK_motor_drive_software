@@ -3,6 +3,7 @@
 #define AMK_SPECS_H
 
 #include <Arduino.h>
+#include "CANMessage.h"
 
 /**
  * @brief Indirizzi dei nodi degli inverter.
@@ -100,4 +101,22 @@ typedef struct
     int16_t temp_igbt;     ///< Temperatura IGBT.
 } ActualValues2;
 
-#endif
+enum InverterState
+{
+    LV_ON,
+    HV_ON,
+    READY,
+    SECURITY_CHECK_DONE,
+    DRIVER_ACTIVE,
+    CONTROLLER_ACTIVE,
+    SENDING_SETPOINTS,
+    ERROR,
+    RESET_ERROR,
+};
+
+ActualValues1 parse_actual_values_1(byte data[8]);
+ActualValues2 parse_actual_values_2(byte data[8]);
+CANMessage parse_setpoints_1(Setpoints1 setpoints_1, uint16_t node_address);
+uint16_t get_node_address_from_can_id(long can_id);
+
+#endif // AMK_SPECS_H
