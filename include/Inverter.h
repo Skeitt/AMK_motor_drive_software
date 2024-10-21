@@ -1,7 +1,7 @@
 #ifndef INVERTER_H
 #define INVERTER_H
 
-#include "amk_specs.h"
+#include "utils.h"
 
 class Inverter {
     private:

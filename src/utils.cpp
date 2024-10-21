@@ -1,4 +1,4 @@
-#include "amk_specs.h"
+#include "utils.h"
 
 ActualValues1 parse_actual_values_1(byte data[8])
 {
@@ -37,7 +37,20 @@ CANMessage parse_setpoints_1(Setpoints1 setpoints_1, uint16_t node_address)
 
 uint16_t get_node_address_from_can_id(long can_id)
 {
-  // Implementare il codice per estrarre l'indirizzo del nodo da can_id
-  // e restituirelo
-  return 0; // Ritorna un indirizzo di default
+  switch (can_id)
+  {
+  case INVERTER_1_ACTUAL_VALUES_1:
+  case INVERTER_1_ACTUAL_VALUES_2:
+  case INVERTER_1_SETPOINTS_1:
+    return INVERTER_1_NODE_ADDRESS;
+    break;
+  case INVERTER_2_ACTUAL_VALUES_1:
+  case INVERTER_2_ACTUAL_VALUES_2:
+  case INVERTER_2_SETPOINTS_1:
+    return INVERTER_2_NODE_ADDRESS;
+    break;
+  default:
+    return 0;
+    break;
+  }
 }

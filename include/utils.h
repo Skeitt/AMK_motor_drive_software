@@ -1,6 +1,6 @@
 // AMK.h
-#ifndef AMK_SPECS_H
-#define AMK_SPECS_H
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <Arduino.h>
 #include "CANMessage.h"
@@ -119,4 +119,4 @@ ActualValues2 parse_actual_values_2(byte data[8]);
 CANMessage parse_setpoints_1(Setpoints1 setpoints_1, uint16_t node_address);
 uint16_t get_node_address_from_can_id(long can_id);
 
-#endif // AMK_SPECS_H
+#endif // UTILS_H

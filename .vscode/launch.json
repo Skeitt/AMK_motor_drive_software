@@ -12,9 +12,9 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "/Users/filippo/Documents/PlatformIO/Projects/AMK_motor_drive_software/.pio/build/adafruit_feather_m4_can/firmware.elf",
+            "executable": "c:/Users/Filip/Documents/GitHub/AMK_motor_drive_software/.pio/build/adafruit_feather_m4_can/firmware.elf",
             "projectEnvName": "adafruit_feather_m4_can",
-            "toolchainBinDir": "/Users/filippo/.platformio/packages/toolchain-gccarmnoneeabi@1.90301.200702/bin",
+            "toolchainBinDir": "C:/Users/Filip/.platformio/packages/toolchain-gccarmnoneeabi/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "preLaunchTask": {
                 "type": "PlatformIO",
@@ -25,18 +25,18 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "/Users/filippo/Documents/PlatformIO/Projects/AMK_motor_drive_software/.pio/build/adafruit_feather_m4_can/firmware.elf",
+            "executable": "c:/Users/Filip/Documents/GitHub/AMK_motor_drive_software/.pio/build/adafruit_feather_m4_can/firmware.elf",
             "projectEnvName": "adafruit_feather_m4_can",
-            "toolchainBinDir": "/Users/filippo/.platformio/packages/toolchain-gccarmnoneeabi@1.90301.200702/bin",
+            "toolchainBinDir": "C:/Users/Filip/.platformio/packages/toolchain-gccarmnoneeabi/bin",
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (without uploading)",
-            "executable": "/Users/filippo/Documents/PlatformIO/Projects/AMK_motor_drive_software/.pio/build/adafruit_feather_m4_can/firmware.elf",
+            "executable": "c:/Users/Filip/Documents/GitHub/AMK_motor_drive_software/.pio/build/adafruit_feather_m4_can/firmware.elf",
             "projectEnvName": "adafruit_feather_m4_can",
-            "toolchainBinDir": "/Users/filippo/.platformio/packages/toolchain-gccarmnoneeabi@1.90301.200702/bin",
+            "toolchainBinDir": "C:/Users/Filip/.platformio/packages/toolchain-gccarmnoneeabi/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "loadMode": "manual"
         }

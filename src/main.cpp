@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <CANSAME5x.h>
-#include "amk_specs.h"
+#include "utils.h"
 #include "Inverter.h"
 #include "CANMessage.h"
 
@@ -11,11 +11,12 @@ Inverter inverters[4] = {
     Inverter(INVERTER_2_NODE_ADDRESS),
     Inverter(INVERTER_3_NODE_ADDRESS),
     Inverter(INVERTER_4_NODE_ADDRESS)};
-    
+
 void init_device();
 void start_can_bus(int speed);
 void receive_message(int packetSize);
 bool send_message(CANMessage can_msg);
+void update_inverter(uint16_t node_address, uint16_t base_address, CANMessage can_msg);
 uint16_t get_node_address_from_can_id(long can_id);
 ActualValues1 parse_actual_values_1(byte data[8]);
 ActualValues2 parse_actual_values_2(byte data[8]);
@@ -30,16 +31,17 @@ void setup()
 void loop()
 {
   bool switch_value = true;
+
   for (Inverter &inverter : inverters)
   {
     inverter.set_target_parameters(500, 100, 0);
     // se lo switch è attivo attiva l'inverter
     // altrimenti disattivalo
-    if(switch_value)
+    if (switch_value)
       inverter.activate();
     else
       inverter.deactivate();
-    
+
     send_message(parse_setpoints_1(inverter.get_setpoints_1(), inverter.get_node_address()));
   }
 }
@@ -80,35 +82,29 @@ void receive_message(int packetSize)
     // memorizzazione del messaggio nel buffer data
     can_msg.set_can_id(CAN.packetId());
     uint16_t node_address = get_node_address_from_can_id(can_msg.get_can_id());
-    uint16_t base_address = can_msg.get_can_id() - node_address;
-    can_msg.data[7] = CAN.read();
-    can_msg.data[6] = CAN.read();
-    can_msg.data[5] = CAN.read();
-    can_msg.data[4] = CAN.read();
-    can_msg.data[3] = CAN.read();
-    can_msg.data[2] = CAN.read();
-    can_msg.data[1] = CAN.read();
-    can_msg.data[0] = CAN.read();
-
-    for (Inverter &inverter : inverters)
+    if (node_address != 0)
     {
-      if (inverter.get_node_address() == node_address)
-      {
-        switch (base_address)
-        {
-        case ACTUAL_VALUES_1_BASE_ADDRESS:
-          inverter.set_actual_values_1(parse_actual_values_1(can_msg.data));
-          break;
-        case ACTUAL_VALUES_2_BASE_ADDRESS:
-          inverter.set_actual_values_2(parse_actual_values_2(can_msg.data));
-          break;
-        }
-      }
+      uint16_t base_address = can_msg.get_can_id() - node_address;
+      can_msg.data[7] = CAN.read();
+      can_msg.data[6] = CAN.read();
+      can_msg.data[5] = CAN.read();
+      can_msg.data[4] = CAN.read();
+      can_msg.data[3] = CAN.read();
+      can_msg.data[2] = CAN.read();
+      can_msg.data[1] = CAN.read();
+      can_msg.data[0] = CAN.read();
+
+      update_inverter(node_address, base_address, can_msg);
+    }
+    else
+    {
+      Serial.printf("Received message from unknown node\n");
+      return;
     }
   }
   else
   {
-    Serial.println("Invalid packet size");
+    Serial.printf("Invalid packet size");
     return;
   }
 }
@@ -119,4 +115,25 @@ bool send_message(CANMessage can_msg)
   size_t bytesSent = CAN.write(can_msg.data, 8);
   CAN.endPacket();
   return (bytesSent == 8);
+}
+
+void update_inverter(uint16_t node_address, uint16_t base_address, CANMessage can_msg)
+{
+  for (Inverter &inverter : inverters)
+  {
+    if (inverter.get_node_address() == node_address)
+    {
+      switch (base_address)
+      {
+      case ACTUAL_VALUES_1_BASE_ADDRESS:
+        inverter.set_actual_values_1(parse_actual_values_1(can_msg.data));
+        break;
+      case ACTUAL_VALUES_2_BASE_ADDRESS:
+        inverter.set_actual_values_2(parse_actual_values_2(can_msg.data));
+        break;
+      default:
+        break;
+      }
+    }
+  }
 }
