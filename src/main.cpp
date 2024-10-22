@@ -80,14 +80,14 @@ void receiveMessage(int packetSize)
     if (node_address != 0)
     {
       uint16_t base_address = canMsg.getCanId() - node_address;
-      canMsg.m_data[7] = CAN.read();
-      canMsg.m_data[6] = CAN.read();
-      canMsg.m_data[5] = CAN.read();
-      canMsg.m_data[4] = CAN.read();
-      canMsg.m_data[3] = CAN.read();
-      canMsg.m_data[2] = CAN.read();
-      canMsg.m_data[1] = CAN.read();
       canMsg.m_data[0] = CAN.read();
+      canMsg.m_data[1] = CAN.read();
+      canMsg.m_data[2] = CAN.read();
+      canMsg.m_data[3] = CAN.read();
+      canMsg.m_data[4] = CAN.read();
+      canMsg.m_data[5] = CAN.read();
+      canMsg.m_data[6] = CAN.read();
+      canMsg.m_data[7] = CAN.read();
 
       update_inverter(node_address, base_address, canMsg);
     }

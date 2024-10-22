@@ -3,20 +3,20 @@
 ActualValues1 parse_actual_values_1(byte data[8])
 {
   ActualValues1 actualValues1;
-  actualValues1.status = data[7] | (data[6] << 8);
-  actualValues1.actual_velocity = data[5] | (data[4] << 8);
-  actualValues1.torque_current = data[3] | (data[2] << 8);
-  actualValues1.magnetizing_current = data[1] | (data[0] << 8);
+  actualValues1.status = data[0] | (data[1] << 8);
+  actualValues1.actual_velocity = data[2] | (data[3] << 8);
+  actualValues1.torque_current = data[4] | (data[5] << 8);
+  actualValues1.magnetizing_current = data[6] | (data[7] << 8);
   return actualValues1;
 }
 
 ActualValues2 parse_actual_values_2(byte data[8])
 {
   ActualValues2 actualValues2;
-  actualValues2.temp_motor = data[7] | (data[6] << 8);
-  actualValues2.temp_inverter = data[5] | (data[4] << 8);
-  actualValues2.error_info = data[3] | (data[2] << 8);
-  actualValues2.temp_igbt = data[1] | (data[0] << 8);
+  actualValues2.temp_motor = data[0] | (data[1] << 8);
+  actualValues2.temp_inverter = data[2] | (data[3] << 8);
+  actualValues2.error_info = data[4] | (data[5] << 8);
+  actualValues2.temp_igbt = data[6] | (data[7] << 8);
   return actualValues2;
 }
 
