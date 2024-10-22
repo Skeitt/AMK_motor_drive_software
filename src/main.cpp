@@ -3,6 +3,7 @@
 #include "utils.hpp"
 #include "Inverter.hpp"
 #include "CANMessage.hpp"
+#include "CANCommunication.hpp"
 
 CANSAME5x CAN;
 CANMessage canMsg;
@@ -13,15 +14,6 @@ Inverter inverters[4] = {
     Inverter(INVERTER_4_NODE_ADDRESS)
 };
 
-void initDevice();
-void startCANBus(long speed);
-void receiveMessage(int packetSize);
-bool sendMessage(CANMessage canMsg);
-void update_inverter(uint16_t node_address, uint16_t base_address, CANMessage canMsg);
-uint16_t get_node_address_from_can_id(long can_id);
-ActualValues1 parse_actual_values_1(byte data[8]);
-ActualValues2 parse_actual_values_2(byte data[8]);
-
 void setup()
 {
   initDevice();
@@ -31,14 +23,14 @@ void setup()
 
 void loop()
 {
-  bool switch_value = true;
+  bool activationValue = true;
 
   for (Inverter &inverter : inverters)
   {
-    inverter.setTargetParameters(500, 100, 0);
+    inverter.setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 1000, 100, 0});
     // se lo switch è attivo attiva l'inverter
     // altrimenti lo disattiva
-    if (switch_value)
+    if (activationValue)
     {
       inverter.activate();
     }
@@ -46,8 +38,6 @@ void loop()
     {
       inverter.deactivate();
     }
-
-    sendMessage(parse_setpoints_1(inverter.getSetpoints1(), inverter.getNodeAddress()));
   }
 }
 

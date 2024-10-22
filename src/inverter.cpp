@@ -1,4 +1,5 @@
 #include "Inverter.hpp"
+#include "CANCommunication.hpp"
 
 Inverter::Inverter(const uint16_t t_nodeAddress) { m_nodeAddress = t_nodeAddress; };
 
@@ -27,6 +28,10 @@ void Inverter::checkStatus()
 {
     uint16_t status = m_actualValues1->status;
 
+    if(status & bError)
+    {
+        m_state = ERROR;
+    }
     if ((status & (bSystemReady | bDerating)) == (bSystemReady | bDerating))
     {
         m_state = LV_ON;
@@ -37,27 +42,11 @@ void Inverter::checkStatus()
     }
     if ((status & (bSystemReady | bDcOn | bQuitDcOn)) == (bSystemReady | bDcOn | bQuitDcOn))
     {
-        if (m_state == READY)
-            m_state = SECURITY_CHECK_DONE;
-        else if (m_state == SECURITY_CHECK_DONE)
-            m_state = DRIVER_ACTIVE;
-        else
-            m_state = READY;
+        m_state = READY;
     }
     if ((status & (bSystemReady | bDcOn | bQuitDcOn | bInverterOn | bQuitInverterOn)) == (bSystemReady | bDcOn | bQuitDcOn | bInverterOn | bQuitInverterOn))
     {
-        if (m_state == DRIVER_ACTIVE)
-            m_state = CONTROLLER_ACTIVE;
-        else
-            m_state = SENDING_SETPOINTS;
-    }
-    if ((status & (bError | bSystemReady)) == (bError | bSystemReady))
-    {
-        m_state = ERROR;
-    }
-    if ((status & (bError | bSystemReady | bInverterOn)) == (bError | bSystemReady | bInverterOn))
-    {
-        m_state = RESET_ERROR;
+        m_state = CONTROLLER_ACTIVE;
     }
 }
 
@@ -73,36 +62,30 @@ void Inverter::activate()
     case HV_ON:
         Serial.printf("HV circuit enabled");
         setSetpoints1(Setpoints1{cbDcOn, 0, 0, 0});
+        sendMessage(parse_setpoints_1(getSetpoints1(), getNodeAddress()));
         break;
     case READY:
         // invio di torque limit pos e neg = 0
         Serial.printf("Sending torque limit pos and neg = 0");
         setSetpoints1(Setpoints1{cbDcOn, 0, 0, 0});
-        m_state = SECURITY_CHECK_DONE;
-        break;
-    case SECURITY_CHECK_DONE:
-        // invio di bEnable = 1
+        sendMessage(parse_setpoints_1(getSetpoints1(), getNodeAddress()));
+
         Serial.printf("Sending driver enable = 1");
         setSetpoints1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
-        m_state = DRIVER_ACTIVE;
-        break;
-    case DRIVER_ACTIVE:
+        sendMessage(parse_setpoints_1(getSetpoints1(), getNodeAddress()));
+
         // invio di bInverterOn = 1
         Serial.printf("Sending inverter on = 1");
         setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 0, 0, 0});
-        // nel caso in cui la procedura di ready sia stata saltata, ricomincia da READY
-        m_state = READY;
+        sendMessage(parse_setpoints_1(getSetpoints1(), getNodeAddress()));
         break;
     case CONTROLLER_ACTIVE:
-        setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 500, 100, 0});
-        break;
-    case SENDING_SETPOINTS:
+        // i setpoint vanno settati nel main
+        sendMessage(parse_setpoints_1(getSetpoints1(), getNodeAddress()));
         break;
     case ERROR:
+        Serial.printf("Error detected");
         setSetpoints1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
-        break;
-    case RESET_ERROR:
-        setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbErrorReset, 0, 0, 0});
         break;
     default:
         break;
@@ -114,37 +97,33 @@ void Inverter::deactivate()
     // Implementare la disattivazione dell'inverter
     // inviando i setpoint corretti
     checkStatus();
+
     switch (m_state)
     {
-    case SENDING_SETPOINTS:
+    case CONTROLLER_ACTIVE:
         Serial.printf("switching off...");
         setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 0, 0, 0}); // setpoint nulli
-        m_state = CONTROLLER_ACTIVE;
-        break;
-    case CONTROLLER_ACTIVE:
+        sendMessage(parse_setpoints_1(getSetpoints1(), getNodeAddress()));
+
         Serial.printf("Disabling controller...");
         setSetpoints1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0}); // InverterOn = 0
-        m_state = DRIVER_ACTIVE;
-        break;
-    case DRIVER_ACTIVE:
+        sendMessage(parse_setpoints_1(getSetpoints1(), getNodeAddress()));
+
         Serial.printf("Disabling driver...");
         setSetpoints1(Setpoints1{cbDcOn, 0, 0, 0}); // Enable = 0
-        m_state = READY;
+        sendMessage(parse_setpoints_1(getSetpoints1(), getNodeAddress()));
         break;
-
     case READY:
         Serial.printf("Disabling driver...");
         setSetpoints1(Setpoints1{0, 0, 0, 0}); // DcOn = 0
-        m_state = HV_ON;
+        sendMessage(parse_setpoints_1(getSetpoints1(), getNodeAddress()));
         break;
-
     case HV_ON:
-        Serial.printf("switch off HV circuit...");
+        Serial.printf("SWITCH OFF HV circuit!");
         break;
     case LV_ON:
-        Serial.printf("switch off LV circuit...");
+        Serial.printf("SWITCH OFF LV circuit!");
         break;
-
     default:
         break;
     }

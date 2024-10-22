@@ -46,10 +46,10 @@
 /**
  *  @brief control word values
  */
-#define cbInverterOn 0x01    ///< Controller enable
-#define cbDcOn 0x02          ///< HV activation
-#define cbEnable 0x04 ///< Driver enable
-#define cbErrorReset 0x08    ///< Remove error
+#define cbInverterOn 0x100    ///< Controller enable
+#define cbDcOn 0x200          ///< HV activation
+#define cbEnable 0x400 ///< Driver enable
+#define cbErrorReset 0x800    ///< Remove error
 
 /**
  * @brief status word values
@@ -106,12 +106,8 @@ enum InverterState
     LV_ON,
     HV_ON,
     READY,
-    SECURITY_CHECK_DONE,
-    DRIVER_ACTIVE,
     CONTROLLER_ACTIVE,
-    SENDING_SETPOINTS,
     ERROR,
-    RESET_ERROR,
 };
 
 ActualValues1 parse_actual_values_1(byte data[8]);
