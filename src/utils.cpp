@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "utils.hpp"
 
 ActualValues1 parse_actual_values_1(byte data[8])
 {
@@ -22,17 +22,17 @@ ActualValues2 parse_actual_values_2(byte data[8])
 
 CANMessage parse_setpoints_1(Setpoints1 setpoints_1, uint16_t node_address)
 {
-  CANMessage can_msg;
-  can_msg.set_can_id(SETPOINTS_1_BASE_ADDRESS + node_address);
-  can_msg.data[7] = setpoints_1.control & 0xFF;
-  can_msg.data[6] = (setpoints_1.control >> 8) & 0xFF;
-  can_msg.data[5] = setpoints_1.target_velocity & 0xFF;
-  can_msg.data[4] = (setpoints_1.target_velocity >> 8) & 0xFF;
-  can_msg.data[3] = setpoints_1.torque_limit_positive & 0xFF;
-  can_msg.data[2] = (setpoints_1.torque_limit_positive >> 8) & 0xFF;
-  can_msg.data[1] = setpoints_1.torque_limit_negative & 0xFF;
-  can_msg.data[0] = (setpoints_1.torque_limit_negative >> 8) & 0xFF;
-  return can_msg;
+  CANMessage canMsg;
+  canMsg.setCanId(SETPOINTS_1_BASE_ADDRESS + node_address);
+  canMsg.m_data[7] = setpoints_1.control & 0xFF;
+  canMsg.m_data[6] = (setpoints_1.control >> 8) & 0xFF;
+  canMsg.m_data[5] = setpoints_1.target_velocity & 0xFF;
+  canMsg.m_data[4] = (setpoints_1.target_velocity >> 8) & 0xFF;
+  canMsg.m_data[3] = setpoints_1.torque_limit_positive & 0xFF;
+  canMsg.m_data[2] = (setpoints_1.torque_limit_positive >> 8) & 0xFF;
+  canMsg.m_data[1] = setpoints_1.torque_limit_negative & 0xFF;
+  canMsg.m_data[0] = (setpoints_1.torque_limit_negative >> 8) & 0xFF;
+  return canMsg;
 }
 
 uint16_t get_node_address_from_can_id(long can_id)

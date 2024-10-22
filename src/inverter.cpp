@@ -1,108 +1,108 @@
-#include "Inverter.h"
+#include "Inverter.hpp"
 
-Inverter::Inverter(const uint16_t node_address) { this->node_address = node_address; };
+Inverter::Inverter(const uint16_t t_nodeAddress) { m_nodeAddress = t_nodeAddress; };
 
-byte Inverter::get_node_address() const { return this->node_address; };
+byte Inverter::getNodeAddress() const { return m_nodeAddress; };
 
-ActualValues1 Inverter::get_actual_values_1() const { return *this->actual_values_1; };
+ActualValues1 Inverter::getActualValues1() const { return *m_actualValues1; };
 
-ActualValues2 Inverter::get_actual_values_2() const { return *this->actual_values_2; };
+ActualValues2 Inverter::getActualValues2() const { return *m_actualValues2; };
 
-Setpoints1 Inverter::get_setpoints_1() const { return *this->setpoints_1; };
+Setpoints1 Inverter::getSetpoints1() const { return *m_setpoints1; };
 
-void Inverter::set_actual_values_1(ActualValues1 actual_values_1) { this->actual_values_1 = &actual_values_1; };
+void Inverter::setActualValues1(ActualValues1 t_actualValues1) { m_actualValues1 = &t_actualValues1; };
 
-void Inverter::set_actual_values_2(ActualValues2 actual_values_2) { this->actual_values_2 = &actual_values_2; };
+void Inverter::setActualValues2(ActualValues2 t_actualValues2) { m_actualValues2 = &t_actualValues2; };
 
-void Inverter::set_setpoints_1(Setpoints1 setpoints_1) { this->setpoints_1 = &setpoints_1; };
+void Inverter::setSetpoints1(Setpoints1 t_setpoints1) { m_setpoints1 = &t_setpoints1; };
 
-void Inverter::set_target_parameters(uint16_t target_velocity, int16_t torque_limit_positive, int16_t torque_limit_negative)
+void Inverter::setTargetParameters(uint16_t targetVel, int16_t torqueLimPos, int16_t torqueLimNeg)
 {
-    this->setpoints_1->target_velocity = target_velocity;
-    this->setpoints_1->torque_limit_positive = torque_limit_positive;
-    this->setpoints_1->torque_limit_negative = torque_limit_negative;
+    m_setpoints1->target_velocity = targetVel;
+    m_setpoints1->torque_limit_positive = torqueLimPos;
+    m_setpoints1->torque_limit_negative = torqueLimNeg;
 };
 
-void Inverter::check_status()
+void Inverter::checkStatus()
 {
-    uint16_t status = this->actual_values_1->status;
+    uint16_t status = m_actualValues1->status;
 
     if ((status & (bSystemReady | bDerating)) == (bSystemReady | bDerating))
     {
-        this->state = LV_ON;
+        m_state = LV_ON;
     }
     if ((status & bSystemReady) == bSystemReady)
     {
-        this->state = HV_ON;
+        m_state = HV_ON;
     }
     if ((status & (bSystemReady | bDcOn | bQuitDcOn)) == (bSystemReady | bDcOn | bQuitDcOn))
     {
-        if (this->state == READY)
-            this->state = SECURITY_CHECK_DONE;
-        else if (this->state == SECURITY_CHECK_DONE)
-            this->state = DRIVER_ACTIVE;
+        if (m_state == READY)
+            m_state = SECURITY_CHECK_DONE;
+        else if (m_state == SECURITY_CHECK_DONE)
+            m_state = DRIVER_ACTIVE;
         else
-            this->state = READY;
+            m_state = READY;
     }
     if ((status & (bSystemReady | bDcOn | bQuitDcOn | bInverterOn | bQuitInverterOn)) == (bSystemReady | bDcOn | bQuitDcOn | bInverterOn | bQuitInverterOn))
     {
-        if (this->state == DRIVER_ACTIVE)
-            this->state = CONTROLLER_ACTIVE;
+        if (m_state == DRIVER_ACTIVE)
+            m_state = CONTROLLER_ACTIVE;
         else
-            this->state = SENDING_SETPOINTS;
+            m_state = SENDING_SETPOINTS;
     }
     if ((status & (bError | bSystemReady)) == (bError | bSystemReady))
     {
-        this->state = ERROR;
+        m_state = ERROR;
     }
     if ((status & (bError | bSystemReady | bInverterOn)) == (bError | bSystemReady | bInverterOn))
     {
-        this->state = RESET_ERROR;
+        m_state = RESET_ERROR;
     }
 }
 
 void Inverter::activate()
 {
-    check_status();
+    checkStatus();
 
-    switch (this->state)
+    switch (m_state)
     {
     case LV_ON:
         Serial.printf("LV circuit enabled");
         break;
     case HV_ON:
         Serial.printf("HV circuit enabled");
-        this->set_setpoints_1(Setpoints1{cbDcOn, 0, 0, 0});
+        setSetpoints1(Setpoints1{cbDcOn, 0, 0, 0});
         break;
     case READY:
         // invio di torque limit pos e neg = 0
         Serial.printf("Sending torque limit pos and neg = 0");
-        this->set_setpoints_1(Setpoints1{cbDcOn, 0, 0, 0});
-        this->state = SECURITY_CHECK_DONE;
+        setSetpoints1(Setpoints1{cbDcOn, 0, 0, 0});
+        m_state = SECURITY_CHECK_DONE;
         break;
     case SECURITY_CHECK_DONE:
         // invio di bEnable = 1
         Serial.printf("Sending driver enable = 1");
-        this->set_setpoints_1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
-        this->state = DRIVER_ACTIVE;
+        setSetpoints1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
+        m_state = DRIVER_ACTIVE;
         break;
     case DRIVER_ACTIVE:
         // invio di bInverterOn = 1
         Serial.printf("Sending inverter on = 1");
-        this->set_setpoints_1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 0, 0, 0});
+        setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 0, 0, 0});
         // nel caso in cui la procedura di ready sia stata saltata, ricomincia da READY
-        this->state = READY;
+        m_state = READY;
         break;
     case CONTROLLER_ACTIVE:
-        this->set_setpoints_1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 500, 100, 0});
+        setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 500, 100, 0});
         break;
     case SENDING_SETPOINTS:
         break;
     case ERROR:
-        this->set_setpoints_1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
+        setSetpoints1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
         break;
     case RESET_ERROR:
-        this->set_setpoints_1(Setpoints1{cbDcOn | cbEnable | cbErrorReset, 0, 0, 0});
+        setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbErrorReset, 0, 0, 0});
         break;
     default:
         break;
@@ -113,29 +113,29 @@ void Inverter::deactivate()
 {
     // Implementare la disattivazione dell'inverter
     // inviando i setpoint corretti
-    check_status();
-    switch (this->state)
+    checkStatus();
+    switch (m_state)
     {
     case SENDING_SETPOINTS:
         Serial.printf("switching off...");
-        this->set_setpoints_1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 0, 0, 0}); // setpoint nulli
-        this->state = CONTROLLER_ACTIVE;
+        setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 0, 0, 0}); // setpoint nulli
+        m_state = CONTROLLER_ACTIVE;
         break;
     case CONTROLLER_ACTIVE:
         Serial.printf("Disabling controller...");
-        this->set_setpoints_1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0}); // InverterOn = 0
-        this->state = DRIVER_ACTIVE;
+        setSetpoints1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0}); // InverterOn = 0
+        m_state = DRIVER_ACTIVE;
         break;
     case DRIVER_ACTIVE:
         Serial.printf("Disabling driver...");
-        this->set_setpoints_1(Setpoints1{cbDcOn, 0, 0, 0}); // Enable = 0
-        this->state = READY;
+        setSetpoints1(Setpoints1{cbDcOn, 0, 0, 0}); // Enable = 0
+        m_state = READY;
         break;
 
     case READY:
         Serial.printf("Disabling driver...");
-        this->set_setpoints_1(Setpoints1{0, 0, 0, 0}); // DcOn = 0
-        this->state = HV_ON;
+        setSetpoints1(Setpoints1{0, 0, 0, 0}); // DcOn = 0
+        m_state = HV_ON;
         break;
 
     case HV_ON:

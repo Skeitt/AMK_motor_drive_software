@@ -1,31 +1,32 @@
 #include <Arduino.h>
 #include <CANSAME5x.h>
-#include "utils.h"
-#include "Inverter.h"
-#include "CANMessage.h"
+#include "utils.hpp"
+#include "Inverter.hpp"
+#include "CANMessage.hpp"
 
 CANSAME5x CAN;
-CANMessage can_msg;
+CANMessage canMsg;
 Inverter inverters[4] = {
     Inverter(INVERTER_1_NODE_ADDRESS),
     Inverter(INVERTER_2_NODE_ADDRESS),
     Inverter(INVERTER_3_NODE_ADDRESS),
-    Inverter(INVERTER_4_NODE_ADDRESS)};
+    Inverter(INVERTER_4_NODE_ADDRESS)
+};
 
-void init_device();
-void start_can_bus(int speed);
-void receive_message(int packetSize);
-bool send_message(CANMessage can_msg);
-void update_inverter(uint16_t node_address, uint16_t base_address, CANMessage can_msg);
+void initDevice();
+void startCANBus(long speed);
+void receiveMessage(int packetSize);
+bool sendMessage(CANMessage canMsg);
+void update_inverter(uint16_t node_address, uint16_t base_address, CANMessage canMsg);
 uint16_t get_node_address_from_can_id(long can_id);
 ActualValues1 parse_actual_values_1(byte data[8]);
 ActualValues2 parse_actual_values_2(byte data[8]);
 
 void setup()
 {
-  init_device();
+  initDevice();
 
-  CAN.onReceive(receive_message);
+  CAN.onReceive(receiveMessage);
 }
 
 void loop()
@@ -34,27 +35,31 @@ void loop()
 
   for (Inverter &inverter : inverters)
   {
-    inverter.set_target_parameters(500, 100, 0);
+    inverter.setTargetParameters(500, 100, 0);
     // se lo switch è attivo attiva l'inverter
-    // altrimenti disattivalo
+    // altrimenti lo disattiva
     if (switch_value)
+    {
       inverter.activate();
+    }
     else
+    {
       inverter.deactivate();
+    }
 
-    send_message(parse_setpoints_1(inverter.get_setpoints_1(), inverter.get_node_address()));
+    sendMessage(parse_setpoints_1(inverter.getSetpoints1(), inverter.getNodeAddress()));
   }
 }
 
-void init_device()
+void initDevice()
 {
   Serial.begin(115200);
 
   // avvia il can bus a 500kbps
-  start_can_bus(500E3);
+  startCANBus(500E3);
 }
 
-void start_can_bus(int speed)
+void startCANBus(long speed)
 {
   pinMode(PIN_CAN_STANDBY, OUTPUT);
   digitalWrite(PIN_CAN_STANDBY, false); // turn off STANDBY
@@ -75,26 +80,26 @@ void start_can_bus(int speed)
   }
 }
 
-void receive_message(int packetSize)
+void receiveMessage(int packetSize)
 {
   if (CAN.available() >= packetSize)
   {
     // memorizzazione del messaggio nel buffer data
-    can_msg.set_can_id(CAN.packetId());
-    uint16_t node_address = get_node_address_from_can_id(can_msg.get_can_id());
+    canMsg.setCanId(CAN.packetId());
+    uint16_t node_address = get_node_address_from_can_id(canMsg.getCanId());
     if (node_address != 0)
     {
-      uint16_t base_address = can_msg.get_can_id() - node_address;
-      can_msg.data[7] = CAN.read();
-      can_msg.data[6] = CAN.read();
-      can_msg.data[5] = CAN.read();
-      can_msg.data[4] = CAN.read();
-      can_msg.data[3] = CAN.read();
-      can_msg.data[2] = CAN.read();
-      can_msg.data[1] = CAN.read();
-      can_msg.data[0] = CAN.read();
+      uint16_t base_address = canMsg.getCanId() - node_address;
+      canMsg.m_data[7] = CAN.read();
+      canMsg.m_data[6] = CAN.read();
+      canMsg.m_data[5] = CAN.read();
+      canMsg.m_data[4] = CAN.read();
+      canMsg.m_data[3] = CAN.read();
+      canMsg.m_data[2] = CAN.read();
+      canMsg.m_data[1] = CAN.read();
+      canMsg.m_data[0] = CAN.read();
 
-      update_inverter(node_address, base_address, can_msg);
+      update_inverter(node_address, base_address, canMsg);
     }
     else
     {
@@ -109,27 +114,27 @@ void receive_message(int packetSize)
   }
 }
 
-bool send_message(CANMessage can_msg)
+bool sendMessage(CANMessage canMsg)
 {
-  CAN.beginPacket(can_msg.get_can_id());
-  size_t bytesSent = CAN.write(can_msg.data, 8);
+  CAN.beginPacket(canMsg.getCanId());
+  size_t bytesSent = CAN.write(canMsg.m_data, 8);
   CAN.endPacket();
   return (bytesSent == 8);
 }
 
-void update_inverter(uint16_t node_address, uint16_t base_address, CANMessage can_msg)
+void update_inverter(uint16_t node_address, uint16_t base_address, CANMessage canMsg)
 {
   for (Inverter &inverter : inverters)
   {
-    if (inverter.get_node_address() == node_address)
+    if (inverter.getNodeAddress() == node_address)
     {
       switch (base_address)
       {
       case ACTUAL_VALUES_1_BASE_ADDRESS:
-        inverter.set_actual_values_1(parse_actual_values_1(can_msg.data));
+        inverter.setActualValues1(parse_actual_values_1(canMsg.m_data));
         break;
       case ACTUAL_VALUES_2_BASE_ADDRESS:
-        inverter.set_actual_values_2(parse_actual_values_2(can_msg.data));
+        inverter.setActualValues2(parse_actual_values_2(canMsg.m_data));
         break;
       default:
         break;

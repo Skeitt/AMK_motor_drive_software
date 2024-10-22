@@ -1,37 +1,29 @@
-#include "CANMessage.h"
+#include "CANMessage.hpp"
 
 CANMessage::CANMessage()
 {
-    this->can_id = 0;
+    m_canId = 0;
     for (int i = 0; i < 8; i++)
     {
-        this->data[i] = 0;
+        m_data[i] = 0;
     }
 }
 
-CANMessage::CANMessage(uint16_t can_id)
+CANMessage::CANMessage(uint16_t t_canId)
 {
-    this->can_id = can_id;
+    m_canId = t_canId;
     for (int i = 0; i < 8; i++)
     {
-        this->data[i] = 0;
+        m_data[i] = 0;
     }
 }
 
-void CANMessage::set_can_id(uint16_t can_id)
+void CANMessage::setCanId(uint16_t t_canId)
 {
-    this->can_id = can_id;
+    m_canId = t_canId;
 }
 
-uint16_t CANMessage::get_can_id()
+uint16_t CANMessage::getCanId()
 {
-    return this->can_id;
-}
-
-void CANMessage::set_data(uint8_t data[8])
-{
-    for (int i = 7; i >= 0; i--)
-    {
-        this->data[i] = data[i];
-    }
+    return m_canId;
 }

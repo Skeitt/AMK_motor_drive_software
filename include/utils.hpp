@@ -3,7 +3,7 @@
 #define UTILS_H
 
 #include <Arduino.h>
-#include "CANMessage.h"
+#include "CANMessage.hpp"
 
 /**
  * @brief Indirizzi dei nodi degli inverter.
