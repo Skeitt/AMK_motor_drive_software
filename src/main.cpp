@@ -76,7 +76,7 @@ void receiveMessage(int packetSize)
   {
     // memorizzazione del messaggio nel buffer data
     canMsg.setCanId(CAN.packetId());
-    uint16_t node_address = get_node_address_from_can_id(canMsg.getCanId());
+    uint16_t node_address = getNodeAddressFromCANId(canMsg.getCanId());
     if (node_address != 0)
     {
       uint16_t base_address = canMsg.getCanId() - node_address;
@@ -121,10 +121,10 @@ void update_inverter(uint16_t node_address, uint16_t base_address, CANMessage ca
       switch (base_address)
       {
       case ACTUAL_VALUES_1_BASE_ADDRESS:
-        inverter.setActualValues1(parse_actual_values_1(canMsg.m_data));
+        inverter.setActualValues1(parseActualValues1(canMsg.m_data));
         break;
       case ACTUAL_VALUES_2_BASE_ADDRESS:
-        inverter.setActualValues2(parse_actual_values_2(canMsg.m_data));
+        inverter.setActualValues2(parseActualValues2(canMsg.m_data));
         break;
       default:
         break;

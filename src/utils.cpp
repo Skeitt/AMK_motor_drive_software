@@ -1,43 +1,43 @@
 #include "utils.hpp"
 
-ActualValues1 parse_actual_values_1(byte data[8])
+ActualValues1 parseActualValues1(byte data[8])
 {
   ActualValues1 actualValues1;
   actualValues1.status = data[0] | (data[1] << 8);
-  actualValues1.actual_velocity = data[2] | (data[3] << 8);
-  actualValues1.torque_current = data[4] | (data[5] << 8);
-  actualValues1.magnetizing_current = data[6] | (data[7] << 8);
+  actualValues1.actualVelocity = data[2] | (data[3] << 8);
+  actualValues1.torqueCurrent = data[4] | (data[5] << 8);
+  actualValues1.magnetizingCurrent = data[6] | (data[7] << 8);
   return actualValues1;
 }
 
-ActualValues2 parse_actual_values_2(byte data[8])
+ActualValues2 parseActualValues2(byte data[8])
 {
   ActualValues2 actualValues2;
-  actualValues2.temp_motor = data[0] | (data[1] << 8);
-  actualValues2.temp_inverter = data[2] | (data[3] << 8);
-  actualValues2.error_info = data[4] | (data[5] << 8);
-  actualValues2.temp_igbt = data[6] | (data[7] << 8);
+  actualValues2.tempMotor = data[0] | (data[1] << 8);
+  actualValues2.tempInverter = data[2] | (data[3] << 8);
+  actualValues2.errorInfo = data[4] | (data[5] << 8);
+  actualValues2.tempIGBT = data[6] | (data[7] << 8);
   return actualValues2;
 }
 
-CANMessage parse_setpoints_1(Setpoints1 setpoints1, uint16_t nodeAddress)
+CANMessage parseSetpoints1(Setpoints1 setpoints1, uint16_t nodeAddress)
 {
   CANMessage canMsg;
   canMsg.setCanId(SETPOINTS_1_BASE_ADDRESS + nodeAddress);
   canMsg.m_data[0] = setpoints1.control & 0xFF;
   canMsg.m_data[1] = (setpoints1.control >> 8) & 0xFF;
-  canMsg.m_data[2] = setpoints1.target_velocity & 0xFF;
-  canMsg.m_data[3] = (setpoints1.target_velocity >> 8) & 0xFF;
-  canMsg.m_data[4] = setpoints1.torque_limit_positive & 0xFF;
-  canMsg.m_data[5] = (setpoints1.torque_limit_positive >> 8) & 0xFF;
-  canMsg.m_data[6] = setpoints1.torque_limit_negative & 0xFF;
-  canMsg.m_data[7] = (setpoints1.torque_limit_negative >> 8) & 0xFF;
+  canMsg.m_data[2] = setpoints1.targetVelocity & 0xFF;
+  canMsg.m_data[3] = (setpoints1.targetVelocity >> 8) & 0xFF;
+  canMsg.m_data[4] = setpoints1.torqueLimitPositiv & 0xFF;
+  canMsg.m_data[5] = (setpoints1.torqueLimitPositiv >> 8) & 0xFF;
+  canMsg.m_data[6] = setpoints1.torqueLimitNegativ & 0xFF;
+  canMsg.m_data[7] = (setpoints1.torqueLimitNegativ >> 8) & 0xFF;
   return canMsg;
 }
 
-uint16_t get_node_address_from_can_id(long can_id)
+uint16_t getNodeAddressFromCANId(long canId)
 {
-  switch (can_id)
+  switch (canId)
   {
   case INVERTER_1_ACTUAL_VALUES_1:
   case INVERTER_1_ACTUAL_VALUES_2:
