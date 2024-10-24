@@ -31,5 +31,13 @@
 *.out
 *.app
 
-# Visual Studio files
+# PlatformIO
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
+.pio
+
+# VisualCode
+.vscode
 
