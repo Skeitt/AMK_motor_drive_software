@@ -71,35 +71,50 @@
 /**
  * @brief Contains the status word and setpoints
  */
-typedef struct
+struct Setpoints1
 {
     uint16_t control;              ///< Control word.
     int16_t targetVelocity;       ///< Speed setpoint.
     int16_t torqueLimitPositiv; ///< Positive torque limit.
     int16_t torqueLimitNegativ; ///< Negative torque limit.
-} Setpoints1;
+
+    Setpoints1() : control(0), targetVelocity(0), torqueLimitPositiv(0), torqueLimitNegativ(0) {}
+
+    Setpoints1(uint16_t t_control, int16_t t_targetVelocity, int16_t t_torqueLimitPositiv, int16_t t_torqueLimitNegativ)
+        : control(t_control), targetVelocity(t_targetVelocity), torqueLimitPositiv(t_torqueLimitPositiv), torqueLimitNegativ(t_torqueLimitNegativ) {}
+};
 
 /**
  * @brief Contains the status word and actual values
  */
-typedef struct
+struct ActualValues1
 {
     uint16_t status;         ///< Status word.
     int16_t actualVelocity; ///< Actual speed value.
     int16_t torqueCurrent;      ///< Raw data for calculating 'actual torque current' Iq.
     int16_t magnetizingCurrent; ///< Raw data for calculating 'actual magnetizing current' Id.
-} ActualValues1;
+
+    ActualValues1() : status(0), actualVelocity(0), torqueCurrent(0), magnetizingCurrent(0) {}
+
+    ActualValues1(uint16_t t_status, int16_t t_actualVelocity, int16_t t_torqueCurrent, int16_t t_magnetizingCurrent)
+        : status(t_status), actualVelocity(t_actualVelocity), torqueCurrent(t_torqueCurrent), magnetizingCurrent(t_magnetizingCurrent) {}
+};
 
 /**
  * @brief Contains actual values
  */
-typedef struct
+struct ActualValues2
 {
     int16_t tempMotor;    ///< Motor temperature.
     int16_t tempInverter; ///< Cold plate temperature.
     uint16_t errorInfo;   ///< Diagnostic number.
     int16_t tempIGBT;     ///< IGBT temperature.
-} ActualValues2;
+
+    ActualValues2() : tempMotor(0), tempInverter(0), errorInfo(0), tempIGBT(0) {}
+
+    ActualValues2(int16_t t_tempMotor, int16_t t_tempInverter, uint16_t t_errorInfo, int16_t t_tempIGBT)
+        : tempMotor(t_tempMotor), tempInverter(t_tempInverter), errorInfo(t_errorInfo), tempIGBT(t_tempIGBT) {} 
+};
 
 enum InverterState
 {

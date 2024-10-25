@@ -1,7 +1,14 @@
 #include "Inverter.hpp"
 #include "CANCommunication.hpp"
 
-Inverter::Inverter(const uint16_t t_nodeAddress) { m_nodeAddress = t_nodeAddress; };
+Inverter::Inverter(const uint16_t t_nodeAddress)
+{
+    m_nodeAddress = t_nodeAddress;
+    m_actualValues1 = new ActualValues1();
+    m_actualValues2 = new ActualValues2();
+    m_setpoints1 = new Setpoints1();
+    m_state = IDLE;
+};
 
 byte Inverter::getNodeAddress() const { return m_nodeAddress; };
 
@@ -56,6 +63,7 @@ void Inverter::checkStatus()
 void Inverter::activate()
 {
     checkStatus();
+    std::pair<const char *, const char *> error;
 
     switch (m_state)
     {
@@ -95,12 +103,12 @@ void Inverter::activate()
         setSetpoints1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
 
-        auto error = getError(m_actualValues2->errorInfo);
+        error = getError(m_actualValues2->errorInfo);
         Serial.printf("Error code: %d (%s), Error class: %s\n",
-                      m_actualValues2->errorInfo, 
+                      m_actualValues2->errorInfo,
                       error.first,
                       error.second);
-                      
+
         // TODO: remove error based on error removal message field
 
         Serial.printf("Resetting error...\n");
@@ -152,6 +160,7 @@ void Inverter::deactivate()
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
         break;
     case IDLE:
+        setSetpoints1(Setpoints1{0, 0, 0, 0});
         break;
     default:
         break;

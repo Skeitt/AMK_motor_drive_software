@@ -3,19 +3,13 @@
 CANMessage::CANMessage()
 {
     m_canId = 0;
-    for (int i = 0; i < 8; i++)
-    {
-        m_data[i] = 0;
-    }
+    m_data[8] = {0};
 }
 
 CANMessage::CANMessage(uint16_t t_canId)
 {
     m_canId = t_canId;
-    for (int i = 0; i < 8; i++)
-    {
-        m_data[i] = 0;
-    }
+    m_data[8] = {0};
 }
 
 void CANMessage::setCanId(uint16_t t_canId)
