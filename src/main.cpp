@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <CANSAME5x.h>
-#include "utils.hpp"
+#include "amk_utils.hpp"
 #include "Inverter.hpp"
 #include "CANMessage.hpp"
 #include "CANCommunication.hpp"
@@ -28,16 +28,9 @@ void loop()
   for (Inverter &inverter : inverters)
   {
     inverter.setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 1000, 100, 0});
-    // se lo switch è attivo attiva l'inverter
-    // altrimenti lo disattiva
-    if (activationValue)
-    {
-      inverter.activate();
-    }
-    else
-    {
-      inverter.deactivate();
-    }
+    
+    // if switch is on, activate inverter, else deactivate
+    (activationValue) ? inverter.activate() : inverter.deactivate();
   }
 }
 
@@ -45,7 +38,7 @@ void initDevice()
 {
   Serial.begin(115200);
 
-  // avvia il can bus a 500kbps
+  // initialize CAN bus at 500 kbps
   startCANBus(500E3);
 }
 
@@ -59,7 +52,7 @@ void startCANBus(long speed)
   if (!CAN.begin(speed))
   {
     Serial.printf("Starting CAN failed!\n");
-    // se la comunicazione non avviene correttamente il led lampeggia
+
     while (1)
     {
       digitalWrite(LED_BUILTIN, HIGH);
@@ -74,7 +67,6 @@ void receiveMessage(int packetSize)
 {
   if (CAN.available() >= packetSize)
   {
-    // memorizzazione del messaggio nel buffer data
     canMsg.setCanId(CAN.packetId());
     uint16_t node_address = getNodeAddressFromCANId(canMsg.getCanId());
     if (node_address != 0)

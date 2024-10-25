@@ -1,4 +1,4 @@
-#include "utils.hpp"
+#include "amk_utils.hpp"
 
 ActualValues1 parseActualValues1(byte data[8])
 {
@@ -53,4 +53,17 @@ uint16_t getNodeAddressFromCANId(long canId)
     return 0;
     break;
   }
+}
+
+std::pair<const char *, const char *> getError(uint16_t errorInfo)
+{
+  auto it = ERROR_MAP.find(errorInfo);
+  if (it != ERROR_MAP.end())
+  {
+    return it->second;
+  }
+  else{
+    return {"Unknown error category", "Unknown class of error"};
+  }
+  
 }

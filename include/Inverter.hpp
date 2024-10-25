@@ -1,7 +1,7 @@
 #ifndef INVERTER_HPP
 #define INVERTER_HPP
 
-#include "utils.hpp"
+#include "amk_utils.hpp"
 
 /**
  * @brief The Inverter class represents an inverter in the system, handling

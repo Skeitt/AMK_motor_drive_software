@@ -1,9 +1,9 @@
-// AMK.h
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef AMK_UTILS_H
+#define AMK_UTILS_H
 
 #include <Arduino.h>
 #include "CANMessage.hpp"
+#include "amk_diagnostic.hpp"
 
 /**
  * @brief Inverters node addresses
@@ -103,6 +103,7 @@ typedef struct
 
 enum InverterState
 {
+    IDLE,
     LV_ON,
     HV_ON,
     READY,
@@ -146,4 +147,12 @@ CANMessage parseSetpoints1(Setpoints1 setpoints1, uint16_t nodeAddress);
  */
 uint16_t getNodeAddressFromCANId(long canId);
 
-#endif // UTILS_H
+/**
+ * @brief Retrieves the error message from the error map.
+ * 
+ * @param errorInfo The error code to retrieve the message for.
+ * @return A pair of strings containing the error category and class.
+ */
+std::pair<const char*, const char*> getError(uint16_t errorInfo);
+
+#endif // AMK_UTILS_H
