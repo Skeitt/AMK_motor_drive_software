@@ -4,4 +4,4 @@ This software facilitates communication between a microcontroller and inverters 
 
 ## Documentation
 
-See documentation [here](docs/index.html)
+See documentation [here](https://skeitt.github.io/AMK_motor_drive_software/)
