@@ -8,6 +8,7 @@ var class_inverter =
     [ "getActualValues2", "class_inverter.html#a169fb27fea661fbb5ddd871f99f3fbc5", null ],
     [ "getNodeAddress", "class_inverter.html#a4a5fbf1c8e2a86cd0a4998868be65910", null ],
     [ "getSetpoints1", "class_inverter.html#a371fae5a2a3452bebcc415e433743704", null ],
+    [ "getState", "class_inverter.html#a225d6caff45542bb18afcbc86b1eab5a", null ],
     [ "setActualValues1", "class_inverter.html#a46f75b4c04bcac9d07cfe3ce41f12522", null ],
     [ "setActualValues2", "class_inverter.html#a2c91ad5d78c6713f2ea3f9aac1813731", null ],
     [ "setSetpoints1", "class_inverter.html#a9c549d4fc9d14e88c0edf7d3ccc9ab7a", null ]

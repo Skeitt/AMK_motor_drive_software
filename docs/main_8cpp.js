@@ -9,5 +9,6 @@ var main_8cpp =
     [ "updateInverter", "main_8cpp.html#a9844e5ce57756a19dbc44119ba961a69", null ],
     [ "CAN", "main_8cpp.html#a3e74bceffde129344c37d79a93b621e9", null ],
     [ "canMsg", "main_8cpp.html#a55e8189fd91d69f4659ec74c2f9d8607", null ],
-    [ "inverters", "main_8cpp.html#ad20a0a1c6d4646bc818320ee91773661", null ]
+    [ "inverters", "main_8cpp.html#ad20a0a1c6d4646bc818320ee91773661", null ],
+    [ "pot", "main_8cpp.html#aee432f865e5bedae96e2d4f9863808f9", null ]
 ];

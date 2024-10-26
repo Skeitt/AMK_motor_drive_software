@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['setpoints1_0',['Setpoints1',['../struct_setpoints1.html',1,'']]]
+  ['potentiometer_0',['Potentiometer',['../class_potentiometer.html',1,'']]]
 ];

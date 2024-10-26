@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['status_0',['status',['../struct_actual_values1.html#a1e01f855226a0539eea3f794c6b7bfe6',1,'ActualValues1']]]
+  ['pot_0',['pot',['../main_8cpp.html#aee432f865e5bedae96e2d4f9863808f9',1,'main.cpp']]]
 ];
