@@ -5,12 +5,14 @@
 #include "CANMessage.hpp"
 #include "CANCommunication.hpp"
 #include "DebugFlags.hpp"
+#include "Potentiometer.hpp"
 
 CANSAME5x CAN;
 CANMessage canMsg;
 Inverter inverters[2] = {
     Inverter(INVERTER_1_NODE_ADDRESS),
     Inverter(INVERTER_2_NODE_ADDRESS)};
+Potentiometer pot;
 
 void setup()
 {
@@ -26,7 +28,16 @@ void loop()
   for (Inverter &inverter : inverters)
   {
     DEBUG_PRINT(DEBUG_LEVEL_NONE, "0x%X\n", inverter.getNodeAddress());
-    inverter.setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 1000, 100, 0});
+
+    // if inverter is active, update setpoints based on potentiometer value
+    if (inverter.getState() == CONTROLLER_ACTIVE)
+    {
+      pot.update();
+      inverter.setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn,
+                                        pot.getRpm(),
+                                        pot.getTorquePos(),
+                                        pot.getTorqueNeg()});
+    }
 
     // if switch is on, activate inverter, else deactivate
     (activationValue) ? inverter.activate() : inverter.deactivate();

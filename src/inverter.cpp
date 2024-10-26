@@ -13,6 +13,8 @@ Inverter::Inverter(const uint16_t t_nodeAddress)
 
 uint16_t Inverter::getNodeAddress() const { return m_nodeAddress; };
 
+InverterState Inverter::getState() const { return m_state; };
+
 ActualValues1 Inverter::getActualValues1() const { return *m_actualValues1; };
 
 ActualValues2 Inverter::getActualValues2() const { return *m_actualValues2; };

@@ -31,6 +31,8 @@ public:
      */
     uint16_t getNodeAddress() const;
 
+    InverterState getState() const;
+
     /**
      * @brief Returns the actual values 1 of the inverter.
      *
