@@ -1,4 +1,4 @@
-#include "amk_diagnostic.hpp"
+#include "AMKDiagnostic.hpp"
 
 const std::unordered_map<uint16_t, std::pair<const char*, const char*>> ERROR_MAP = {
     {257, {"Control Panel", "System diagnostics",}},

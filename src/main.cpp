@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <CANSAME5x.h>
-#include "amk_utils.hpp"
+#include "AMKUtils.hpp"
 #include "Inverter.hpp"
 #include "CANMessage.hpp"
 #include "CANCommunication.hpp"
@@ -8,11 +8,9 @@
 
 CANSAME5x CAN;
 CANMessage canMsg;
-Inverter inverters[4] = {
+Inverter inverters[2] = {
     Inverter(INVERTER_1_NODE_ADDRESS),
-    Inverter(INVERTER_2_NODE_ADDRESS),
-    Inverter(INVERTER_3_NODE_ADDRESS),
-    Inverter(INVERTER_4_NODE_ADDRESS)};
+    Inverter(INVERTER_2_NODE_ADDRESS)};
 
 void setup()
 {
@@ -27,6 +25,7 @@ void loop()
 
   for (Inverter &inverter : inverters)
   {
+    DEBUG_PRINT(DEBUG_LEVEL_NONE, "0x%X\n", inverter.getNodeAddress());
     inverter.setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 1000, 100, 0});
 
     // if switch is on, activate inverter, else deactivate
@@ -68,10 +67,10 @@ void receiveMessage(int packetSize)
   if (CAN.available() >= packetSize)
   {
     canMsg.setCanId(CAN.packetId());
-    uint16_t node_address = getNodeAddressFromCANId(canMsg.getCanId());
-    if (node_address != 0)
+    uint16_t nodeAddress = getNodeAddressFromCANId(canMsg.getCanId());
+    if (nodeAddress != 0)
     {
-      uint16_t base_address = canMsg.getCanId() - node_address;
+      uint16_t baseAddress = canMsg.getCanId() - nodeAddress;
       canMsg.m_data[0] = CAN.read();
       canMsg.m_data[1] = CAN.read();
       canMsg.m_data[2] = CAN.read();
@@ -81,7 +80,7 @@ void receiveMessage(int packetSize)
       canMsg.m_data[6] = CAN.read();
       canMsg.m_data[7] = CAN.read();
 
-      update_inverter(node_address, base_address, canMsg);
+      updateInverter(nodeAddress, baseAddress, canMsg);
     }
     else
     {
@@ -104,13 +103,13 @@ bool sendMessage(CANMessage canMsg)
   return (bytesSent == 8);
 }
 
-void update_inverter(uint16_t node_address, uint16_t base_address, CANMessage canMsg)
+void updateInverter(uint16_t nodeAddress, uint16_t baseAddress, CANMessage canMsg)
 {
   for (Inverter &inverter : inverters)
   {
-    if (inverter.getNodeAddress() == node_address)
+    if (inverter.getNodeAddress() == nodeAddress)
     {
-      switch (base_address)
+      switch (baseAddress)
       {
       case ACTUAL_VALUES_1_BASE_ADDRESS:
         inverter.setActualValues1(parseActualValues1(canMsg.m_data));

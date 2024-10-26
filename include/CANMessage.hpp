@@ -1,5 +1,5 @@
-#ifndef CANMESSAGE_HPP
-#define CANMESSAGE_HPP
+#ifndef CAN_MESSAGE_HPP
+#define CAN_MESSAGE_HPP
 
 #include <Arduino.h>
 
@@ -45,4 +45,4 @@ class CANMessage {
         uint16_t getCanId();
 };
 
-#endif // CANMESSAGE_HPP
+#endif // CAN_MESSAGE_HPP

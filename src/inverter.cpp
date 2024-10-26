@@ -11,7 +11,7 @@ Inverter::Inverter(const uint16_t t_nodeAddress)
     m_state = IDLE;
 };
 
-byte Inverter::getNodeAddress() const { return m_nodeAddress; };
+uint16_t Inverter::getNodeAddress() const { return m_nodeAddress; };
 
 ActualValues1 Inverter::getActualValues1() const { return *m_actualValues1; };
 

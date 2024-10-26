@@ -1,9 +1,9 @@
-#ifndef AMK_UTILS_H
-#define AMK_UTILS_H
+#ifndef AMK_UTILS_HPP
+#define AMK_UTILS_HPP
 
 #include <Arduino.h>
 #include "CANMessage.hpp"
-#include "amk_diagnostic.hpp"
+#include "AMKDiagnostic.hpp"
 
 /**
  * @brief Inverters node addresses
@@ -170,4 +170,4 @@ uint16_t getNodeAddressFromCANId(long canId);
  */
 std::pair<const char*, const char*> getError(uint16_t errorInfo);
 
-#endif // AMK_UTILS_H
+#endif // AMK_UTILS_HPP

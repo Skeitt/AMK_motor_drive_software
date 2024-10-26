@@ -1,7 +1,7 @@
 #ifndef INVERTER_HPP
 #define INVERTER_HPP
 
-#include "amk_utils.hpp"
+#include "AMKUtils.hpp"
 
 /**
  * @brief The Inverter class represents an inverter in the system, handling
@@ -29,7 +29,7 @@ public:
      *
      * @return The CAN node address of the inverter.
      */
-    byte getNodeAddress() const;
+    uint16_t getNodeAddress() const;
 
     /**
      * @brief Returns the actual values 1 of the inverter.
