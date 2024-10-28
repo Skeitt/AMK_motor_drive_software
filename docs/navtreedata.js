@@ -25,6 +25,13 @@
 var NAVTREE =
 [
   [ "AMK_motor_drive_software", "index.html", [
+    [ "LICENSE", "md__2_users_2filippo_2_documents_2_platform_i_o_2_projects_2_a_m_k__motor__drive__software_2_l_i_c_e_n_s_e.html", null ],
+    [ "Inverter Communication Software", "md__2_users_2filippo_2_documents_2_platform_i_o_2_projects_2_a_m_k__motor__drive__software_2_r_e_a_d_m_e.html", [
+      [ "Documentation", "md__2_users_2filippo_2_documents_2_platform_i_o_2_projects_2_a_m_k__motor__drive__software_2_r_e_a_d_m_e.html#autotoc_md1", null ]
+    ] ],
+    [ "Software di Comunicazione con Inverter", "md__2_users_2filippo_2_documents_2_platform_i_o_2_projects_2_a_m_k__motor__drive__software_2_r_e_a_d_m_e__it.html", [
+      [ "Documentazione", "md__2_users_2filippo_2_documents_2_platform_i_o_2_projects_2_a_m_k__motor__drive__software_2_r_e_a_d_m_e__it.html#autotoc_md3", null ]
+    ] ],
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],

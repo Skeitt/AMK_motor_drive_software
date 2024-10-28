@@ -11,6 +11,9 @@ var searchData=
   ['cberrorreset_8',['cbErrorReset',['../_a_m_k_utils_8hpp.html#a95beac96adaef87545cdd62578c33019',1,'AMKUtils.hpp']]],
   ['cbinverteron_9',['cbInverterOn',['../_a_m_k_utils_8hpp.html#a448f84b8f25825cc5d417e5d1db8e2c8',1,'AMKUtils.hpp']]],
   ['checkstatus_10',['checkStatus',['../class_inverter.html#aedc1562ff2fda1892ac65399d31082ff',1,'Inverter']]],
-  ['control_11',['control',['../struct_setpoints1.html#a6ed3a45abc181e3fd1041129009930e0',1,'Setpoints1']]],
-  ['controller_5factive_12',['CONTROLLER_ACTIVE',['../_a_m_k_utils_8hpp.html#a3dfb1164df31bf0c9b6476f888fd5311a74980ded56810288147e2844923445eb',1,'AMKUtils.hpp']]]
+  ['communication_20software_11',['Inverter Communication Software',['../md__2_users_2filippo_2_documents_2_platform_i_o_2_projects_2_a_m_k__motor__drive__software_2_r_e_a_d_m_e.html',1,'']]],
+  ['comunicazione_20con_20inverter_12',['Software di Comunicazione con Inverter',['../md__2_users_2filippo_2_documents_2_platform_i_o_2_projects_2_a_m_k__motor__drive__software_2_r_e_a_d_m_e__it.html',1,'']]],
+  ['con_20inverter_13',['Software di Comunicazione con Inverter',['../md__2_users_2filippo_2_documents_2_platform_i_o_2_projects_2_a_m_k__motor__drive__software_2_r_e_a_d_m_e__it.html',1,'']]],
+  ['control_14',['control',['../struct_setpoints1.html#a6ed3a45abc181e3fd1041129009930e0',1,'Setpoints1']]],
+  ['controller_5factive_15',['CONTROLLER_ACTIVE',['../_a_m_k_utils_8hpp.html#a3dfb1164df31bf0c9b6476f888fd5311a74980ded56810288147e2844923445eb',1,'AMKUtils.hpp']]]
 ];

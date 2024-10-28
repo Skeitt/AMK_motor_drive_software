@@ -33,10 +33,11 @@ void loop()
     if (inverter.getState() == CONTROLLER_ACTIVE)
     {
       pot.update();
-      inverter.setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn,
-                                        pot.getRpm(),
-                                        pot.getTorquePos(),
-                                        pot.getTorqueNeg()});
+      inverter
+          .setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn,
+                                    pot.getRpm(),
+                                    pot.getTorquePos(),
+                                    pot.getTorqueNeg()});
     }
 
     // if switch is on, activate inverter, else deactivate

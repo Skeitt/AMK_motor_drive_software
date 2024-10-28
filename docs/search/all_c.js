@@ -8,6 +8,8 @@ var searchData=
   ['setpoints_5f1_5fbase_5faddress_5',['SETPOINTS_1_BASE_ADDRESS',['../_a_m_k_utils_8hpp.html#aaac4c9b91a83906bf9db0c3bdc7e275c',1,'AMKUtils.hpp']]],
   ['setsetpoints1_6',['setSetpoints1',['../class_inverter.html#a9c549d4fc9d14e88c0edf7d3ccc9ab7a',1,'Inverter']]],
   ['setup_7',['setup',['../main_8cpp.html#a4fc01d736fe50cf5b977f755b675f11d',1,'main.cpp']]],
-  ['startcanbus_8',['startCANBus',['../_c_a_n_communication_8hpp.html#a3c832687b5109e314c807ad2cdb769cd',1,'startCANBus(long speed):&#160;main.cpp'],['../main_8cpp.html#a3c832687b5109e314c807ad2cdb769cd',1,'startCANBus(long speed):&#160;main.cpp']]],
-  ['status_9',['status',['../struct_actual_values1.html#a1e01f855226a0539eea3f794c6b7bfe6',1,'ActualValues1']]]
+  ['software_8',['Inverter Communication Software',['../md__2_users_2filippo_2_documents_2_platform_i_o_2_projects_2_a_m_k__motor__drive__software_2_r_e_a_d_m_e.html',1,'']]],
+  ['software_20di_20comunicazione_20con_20inverter_9',['Software di Comunicazione con Inverter',['../md__2_users_2filippo_2_documents_2_platform_i_o_2_projects_2_a_m_k__motor__drive__software_2_r_e_a_d_m_e__it.html',1,'']]],
+  ['startcanbus_10',['startCANBus',['../_c_a_n_communication_8hpp.html#a3c832687b5109e314c807ad2cdb769cd',1,'startCANBus(long speed):&#160;main.cpp'],['../main_8cpp.html#a3c832687b5109e314c807ad2cdb769cd',1,'startCANBus(long speed):&#160;main.cpp']]],
+  ['status_11',['status',['../struct_actual_values1.html#a1e01f855226a0539eea3f794c6b7bfe6',1,'ActualValues1']]]
 ];
