@@ -1,7 +1,7 @@
 #ifndef CAN_COMMUNICATION_HPP
 #define CAN_COMMUNICATION_HPP
 
-#include <Arduino.h>
+#include <stdint.h>
 #include "CANMessage.hpp"
 
 /**

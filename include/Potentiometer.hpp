@@ -1,7 +1,7 @@
 #ifndef POTENTIOMETER_HPP
 #define POTENTIOMETER_HPP
 
-#include <Arduino.h>
+#include <stdint.h>
 
 /**
  * @class Potentiometer

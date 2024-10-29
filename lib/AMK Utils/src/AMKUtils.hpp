@@ -1,7 +1,7 @@
 #ifndef AMK_UTILS_HPP
 #define AMK_UTILS_HPP
 
-#include <Arduino.h>
+#include <stdint.h>
 #include "CANMessage.hpp"
 #include "AMKDiagnostic.hpp"
 
@@ -133,7 +133,7 @@ enum InverterState
  * @return Parsed ActualValues1 structure containing the status, actual velocity, 
  *         torque current, and magnetizing current.
  */
-ActualValues1 parseActualValues1(byte data[8]);
+ActualValues1 parseActualValues1(uint8_t data[8]);
 
 /**
  * @brief Parses Actual Values 2 from a CAN message data array.
@@ -142,7 +142,7 @@ ActualValues1 parseActualValues1(byte data[8]);
  * @return Parsed ActualValues2 structure containing motor temperature, 
  *         inverter temperature, error info, and IGBT temperature.
  */
-ActualValues2 parseActualValues2(byte data[8]);
+ActualValues2 parseActualValues2(uint8_t data[8]);
 
 /**
  * @brief Creates a CAN message with setpoints and a node address.

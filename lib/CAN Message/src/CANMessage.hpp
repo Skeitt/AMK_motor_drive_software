@@ -1,7 +1,7 @@
 #ifndef CAN_MESSAGE_HPP
 #define CAN_MESSAGE_HPP
 
-#include <Arduino.h>
+#include <stdint.h>
 
 /**
  * @brief The CANMessage class represents a CAN message, containing an ID and data.

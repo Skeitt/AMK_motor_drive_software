@@ -1,6 +1,6 @@
 #include "AMKUtils.hpp"
 
-ActualValues1 parseActualValues1(byte data[8])
+ActualValues1 parseActualValues1(uint8_t data[8])
 {
   ActualValues1 actualValues1;
   actualValues1.status = data[0] | (data[1] << 8);
@@ -10,7 +10,7 @@ ActualValues1 parseActualValues1(byte data[8])
   return actualValues1;
 }
 
-ActualValues2 parseActualValues2(byte data[8])
+ActualValues2 parseActualValues2(uint8_t data[8])
 {
   ActualValues2 actualValues2;
   actualValues2.tempMotor = data[0] | (data[1] << 8);
