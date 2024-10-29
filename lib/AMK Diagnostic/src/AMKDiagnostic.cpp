@@ -1,6 +1,6 @@
 #include "AMKDiagnostic.hpp"
 
-const std::unordered_map<uint16_t, std::pair<const char*, const char*>> ERROR_MAP = {
+const std::unordered_map<uint16_t, std::pair<const char*, const char*> > ERROR_MAP = {
     {257, {"Control Panel", "System diagnostics",}},
     {258, {"Control Panel", "Leave RF active",}},
     {259, {"Control Panel", "System diagnostics",}},
