@@ -1,17 +1,9 @@
 #include <unity.h>
+#include "test_parsing.hpp"
 #include "AMKUtils.hpp"
 
-void setUp(void)
-{
-    // set stuff up here
-}
-
-void tearDown(void)
-{
-    // clean stuff up here
-}
-
-void test_parse_valid_message()
+// Test parsing of real case message
+void test_parse_valid_message(void)
 {
     uint8_t data[8] = {0xEB, 0x00, 0xDE, 0x00, 0x00, 0x00, 0xE1, 0x00};
     ActualValues2 actualValues2 = parseActualValues2(data);
@@ -22,7 +14,8 @@ void test_parse_valid_message()
     TEST_ASSERT_EQUAL(225, actualValues2.tempIGBT);
 }
 
-void test_parse_zero_values()
+// Test parsing of zero values
+void test_parse_zero_values(void)
 {
     uint8_t data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     ActualValues2 actualValues2 = parseActualValues2(data);
@@ -33,7 +26,8 @@ void test_parse_zero_values()
     TEST_ASSERT_EQUAL(0, actualValues2.tempIGBT);
 }
 
-void test_parse_mixed_values()
+// Test parsing of mixed values (positive and negative, max and min)
+void test_parse_mixed_values(void)
 {
     uint8_t data[8] = {0xFF, 0x7F, 0x00, 0x80, 0xFF, 0xFF, 0xCD, 0xEF};
     ActualValues2 actualValues2 = parseActualValues2(data);
@@ -45,16 +39,9 @@ void test_parse_mixed_values()
 }
 
 
-int runUnityTests(void)
+void runParsingTests(void)
 {
-    UNITY_BEGIN();
     RUN_TEST(test_parse_valid_message);
     RUN_TEST(test_parse_zero_values);
     RUN_TEST(test_parse_mixed_values);
-    return UNITY_END();
-}
-
-int main(int argc, char **argv) {
-    runUnityTests();
-    return 0;
 }
