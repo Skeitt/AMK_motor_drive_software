@@ -14,6 +14,22 @@ void test_parse_valid_message(void)
     TEST_ASSERT_EQUAL(225, actualValues2.tempIGBT);
 }
 
+void test_parse_valid_setpoints(void)
+{
+    Setpoints1 setpoints1 = {0x0000, 0x0000, 0x012C, 0x0000};
+    CANMessage canMsg = parseSetpoints1(setpoints1, 0x0000);
+
+    TEST_ASSERT_EQUAL(387, canMsg.getCanId());
+    TEST_ASSERT_EQUAL(0x00, canMsg.m_data[0]);
+    TEST_ASSERT_EQUAL(0x00, canMsg.m_data[1]);
+    TEST_ASSERT_EQUAL(0x00, canMsg.m_data[2]);
+    TEST_ASSERT_EQUAL(0x00, canMsg.m_data[3]);
+    TEST_ASSERT_EQUAL(0x2C, canMsg.m_data[4]);
+    TEST_ASSERT_EQUAL(0x01, canMsg.m_data[5]);
+    TEST_ASSERT_EQUAL(0x00, canMsg.m_data[6]);
+    TEST_ASSERT_EQUAL(0x00, canMsg.m_data[7]);
+}
+
 // Test parsing of zero values
 void test_parse_zero_values(void)
 {
@@ -44,4 +60,5 @@ void runParsingTests(void)
     RUN_TEST(test_parse_valid_message);
     RUN_TEST(test_parse_zero_values);
     RUN_TEST(test_parse_mixed_values);
+    RUN_TEST(test_parse_valid_setpoints);
 }
