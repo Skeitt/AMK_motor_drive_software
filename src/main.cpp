@@ -14,6 +14,8 @@ Inverter inverters[2] = {
     Inverter(INVERTER_2_NODE_ADDRESS)};
 Potentiometer pot;
 
+unsigned long lastSendTime[2] = {0,0};
+
 void setup()
 {
   initDevice();
@@ -27,7 +29,7 @@ void loop()
 
   for (Inverter &inverter : inverters)
   {
-    DEBUG_PRINT(DEBUG_LEVEL_NONE, "0x%X\n", inverter.getNodeAddress());
+    DEBUG_PRINT(DEBUG_LEVEL_NONE, "Inverter 0x%X\n", inverter.getNodeAddress());
 
     // if inverter is active, update setpoints based on potentiometer value
     if (inverter.getState() == CONTROLLER_ACTIVE)
@@ -112,6 +114,11 @@ bool sendMessage(CANMessage canMsg)
   CAN.beginPacket(canMsg.getCanId());
   size_t bytesSent = CAN.write(canMsg.m_data, 8);
   CAN.endPacket();
+
+  unsigned long currentTime = millis();
+  DEBUG_PRINT(DEBUG_LEVEL_NONE, "Tempo passato dall'ultimo invio: %d ms\n", currentTime - (canMsg.getCanId() == INVERTER_1_SETPOINTS_1 ? lastSendTime[0] : lastSendTime[1]));
+  canMsg.getCanId() == INVERTER_1_SETPOINTS_1 ? lastSendTime[0] = currentTime : lastSendTime[1] = currentTime;
+
   return (bytesSent == 8);
 }
 
