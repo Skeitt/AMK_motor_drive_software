@@ -1,6 +1,8 @@
 #include "Inverter.hpp"
 #include "CANCommunication.hpp"
-#include "DebugFlags.hpp"
+#include <Arduino.h>
+
+#define DELAY 30
 
 Inverter::Inverter(const uint16_t t_nodeAddress)
 {
@@ -31,35 +33,36 @@ void Inverter::checkStatus()
 {
     uint16_t status = m_actualValues1->status;
 
-    if (status & bError)
-    {
-        m_state = ERROR;
-        DEBUG_PRINT(DEBUG_LEVEL_ERROR, "Error detected\n");
-    }
-    else if ((status & (bSystemReady | bDerating)) == (bSystemReady | bDerating))
+    if (((status & 0xFF00) == (bSystemReady | bDerating)) || ((status & 0xFF00) == (bSystemReady)))
     {
         m_state = LV_ON;
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "LV circuit enabled\n");
+        Serial.printf("LV circuit enabled\n");
     }
-    else if ((status & bSystemReady) == bSystemReady)
+    else if (((status & 0xFF00) == (bSystemReady)) || ((status & 0xFF00) == (bSystemReady | bDcOn)))
     {
         m_state = HV_ON;
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "HV circuit enabled\n");
+        Serial.printf("HV circuit enabled\n");
     }
-    else if ((status & (bSystemReady | bDcOn | bQuitDcOn)) == (bSystemReady | bDcOn | bQuitDcOn))
+    else if ((status & 0xFF00) == (bSystemReady | bDcOn | bQuitDcOn))
     {
         m_state = READY;
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "DcOn enabled\n");
+        Serial.printf("DcOn enabled\n");
     }
-    else if ((status & (bSystemReady | bDcOn | bQuitDcOn | bInverterOn | bQuitInverterOn)) == (bSystemReady | bDcOn | bQuitDcOn | bInverterOn | bQuitInverterOn))
+    // considera di aggiungere uno stato tra bInverterOn e bQuitInverterOn
+    else if ((status & 0xFF00) == (bSystemReady | bDcOn | bQuitDcOn | bInverterOn | bQuitInverterOn))
     {
         m_state = CONTROLLER_ACTIVE;
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Controller enabled\n");
+        Serial.printf("Controller enabled\n");
+    }
+    else if (status & bError)
+    {
+        m_state = ERROR;
+        Serial.printf("Error detected\n");
     }
     else
     {
         m_state = IDLE;
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "System inactive (LV switched off)\n");
+        Serial.printf("System inactive (LV switched off)\n");
     }
 }
 
@@ -71,55 +74,66 @@ void Inverter::activate()
     switch (m_state)
     {
     case IDLE:
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Switch on LV circuit...\n");
-        break;
-    case LV_ON:
+        Serial.printf("Switch on LV circuit...\n");
         setSetpoints1(Setpoints1{0, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Switch on HV circuit...\n");
+        delay(DELAY);
+        break;
+    case LV_ON:
+        Serial.printf("Switch on HV circuit...\n");
+        setSetpoints1(Setpoints1{0, 0, 0, 0});
+        sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
         break;
     case HV_ON:
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Enabling HV activation level...\n");
+        Serial.printf("Enabling HV activation level...\n");
         setSetpoints1(Setpoints1{cbDcOn, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
         break;
     case READY:
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Performing security check (torque limit pos and neg = 0)\n");
+        Serial.printf("Performing security check (torque limit pos and neg = 0)\n");
         setSetpoints1(Setpoints1{cbDcOn, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
 
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Enabling driver...\n");
+        Serial.printf("Enabling driver...\n");
         setSetpoints1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
 
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Enabling controller...\n");
+        Serial.printf("Enabling controller...\n");
         setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
         break;
     case CONTROLLER_ACTIVE:
-        // setpoints must be set in main loop
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Sending setpoints...\n");
+        Serial.printf("Sending setpoints...\n");
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
         break;
     case ERROR:
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Disabling controller...\n");
+        Serial.printf("Disabling controller...\n");
         setSetpoints1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
 
         error = getError(m_actualValues2->errorInfo);
-        DEBUG_PRINT(DEBUG_LEVEL_ERROR, "Error code: %d (%s), Error class: %s\n",
-                    m_actualValues2->errorInfo,
-                    error.first,
-                    error.second);
+        Serial.printf("Error code: %d (%s), Error class: %s\n",
+                      m_actualValues2->errorInfo,
+                      error.first,
+                      error.second);
 
         // TODO: remove error based on error removal message field
 
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Resetting error...\n");
+        Serial.printf("Resetting error...\n");
         setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbErrorReset, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
 
         setSetpoints1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
         break;
     default:
         break;
@@ -133,37 +147,45 @@ void Inverter::deactivate()
     switch (m_state)
     {
     case CONTROLLER_ACTIVE:
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Switching off...\n");
+        Serial.printf("Switching off...\n");
         setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbInverterOn, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
 
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Disabling controller...\n");
+        Serial.printf("Disabling controller...\n");
         setSetpoints1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
 
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Disabling driver...\n");
+        Serial.printf("Disabling driver...\n");
         setSetpoints1(Setpoints1{cbDcOn, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
         break;
     case READY:
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Disabling HV activation level...\n");
+        Serial.printf("Disabling HV activation level...\n");
         setSetpoints1(Setpoints1{0, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
         break;
     case HV_ON:
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Switch off HV circuit...\n");
+        Serial.printf("Switch off HV circuit...\n");
         // TODO: send signal to battery pack to switch off HV
         setSetpoints1(Setpoints1{0, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
         break;
     case LV_ON:
-        DEBUG_PRINT(DEBUG_LEVEL_STATE, "Switch off LV circuit...\n");
+        Serial.printf("Switch off LV circuit...\n");
         // TODO: send signal to battery pack to switch off HV
         setSetpoints1(Setpoints1{0, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
         break;
     case IDLE:
         setSetpoints1(Setpoints1{0, 0, 0, 0});
+        sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
+        delay(DELAY);
         break;
     default:
         break;

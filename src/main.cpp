@@ -4,7 +4,6 @@
 #include "Inverter.hpp"
 #include "CANMessage.hpp"
 #include "CANCommunication.hpp"
-#include "DebugFlags.hpp"
 #include "Potentiometer.hpp"
 
 CANSAME5x CAN;
@@ -13,8 +12,6 @@ Inverter inverters[2] = {
     Inverter(INVERTER_1_NODE_ADDRESS),
     Inverter(INVERTER_2_NODE_ADDRESS)};
 Potentiometer pot;
-
-unsigned long lastSendTime[2] = {0,0};
 
 void setup()
 {
@@ -29,7 +26,7 @@ void loop()
 
   for (Inverter &inverter : inverters)
   {
-    DEBUG_PRINT(DEBUG_LEVEL_NONE, "Inverter 0x%X\n", inverter.getNodeAddress());
+    Serial.printf("Inverter 0x%X\n", inverter.getNodeAddress());
 
     // if inverter is active, update setpoints based on potentiometer value
     if (inverter.getState() == CONTROLLER_ACTIVE)
@@ -64,7 +61,7 @@ void startCANBus(long speed)
 
   if (!CAN.begin(speed))
   {
-    DEBUG_PRINT(DEBUG_LEVEL_ERROR, "Starting CAN failed!\n");
+    Serial.printf("Starting CAN failed!\n");
 
     while (1)
     {
@@ -98,13 +95,13 @@ void receiveMessage(int packetSize)
     }
     else
     {
-      DEBUG_PRINT(DEBUG_LEVEL_ERROR, "Received message from unknown node\n");
+      Serial.printf("Received message from unknown node\n");
       return;
     }
   }
   else
   {
-    DEBUG_PRINT(DEBUG_LEVEL_ERROR, "Invalid packet size");
+    Serial.printf("Invalid packet size");
     return;
   }
 }
@@ -114,16 +111,21 @@ bool sendMessage(CANMessage canMsg)
   CAN.beginPacket(canMsg.getCanId());
   size_t bytesSent = CAN.write(canMsg.m_data, 8);
   CAN.endPacket();
-
-  unsigned long currentTime = millis();
-  DEBUG_PRINT(DEBUG_LEVEL_NONE, "Tempo passato dall'ultimo invio: %d ms\n", currentTime - (canMsg.getCanId() == INVERTER_1_SETPOINTS_1 ? lastSendTime[0] : lastSendTime[1]));
-  canMsg.getCanId() == INVERTER_1_SETPOINTS_1 ? lastSendTime[0] = currentTime : lastSendTime[1] = currentTime;
-
   return (bytesSent == 8);
 }
 
 void updateInverter(uint16_t nodeAddress, uint16_t baseAddress, CANMessage canMsg)
 {
+  Serial.printf("Received packet: %X %X %X %X %X %X %X %X\n",
+                      canMsg.m_data[0],
+                      canMsg.m_data[1],
+                      canMsg.m_data[2],
+                      canMsg.m_data[3],
+                      canMsg.m_data[4],
+                      canMsg.m_data[5],
+                      canMsg.m_data[6],
+                      canMsg.m_data[7]);
+  
   for (Inverter &inverter : inverters)
   {
     if (inverter.getNodeAddress() == nodeAddress)
@@ -132,23 +134,20 @@ void updateInverter(uint16_t nodeAddress, uint16_t baseAddress, CANMessage canMs
       {
       case ACTUAL_VALUES_1_BASE_ADDRESS:
         inverter.setActualValues1(parseActualValues1(canMsg.m_data));
-        DEBUG_PRINT(DEBUG_LEVEL_VALUES,
-                    "0x%X:\n Status: %d\n, Actual velocity: %d\n, Torque current: %f\n, Magnetizing current: %f\n",
-                    canMsg.getCanId(),
-                    inverter.getActualValues1().status,
-                    inverter.getActualValues1().actualVelocity,
-                    static_cast<float>(inverter.getActualValues1().torqueCurrent) * (ID110 / 16384),
-                    static_cast<float>(inverter.getActualValues1().magnetizingCurrent) * (ID110 / 16384));
+        Serial.printf("ID: 0x%X\n", canMsg.getCanId());
+        Serial.printf("Status: %X\n", inverter.getActualValues1().status);
+        Serial.printf("Actual Velocity: %d\n", inverter.getActualValues1().actualVelocity);
+        Serial.printf("Torque current: %f\n", (float)(inverter.getActualValues1().torqueCurrent * ID110) / 16384);
+        Serial.printf("Magnetizing current: %f\n", (float)(inverter.getActualValues1().magnetizingCurrent * ID110) / 16384);
         break;
       case ACTUAL_VALUES_2_BASE_ADDRESS:
         inverter.setActualValues2(parseActualValues2(canMsg.m_data));
-        DEBUG_PRINT(DEBUG_LEVEL_VALUES,
-                    "0x%X:\n Motor temperature: %f\n, Inverter temperature: %f\n, Error info: %d\n, IGBT temperature: %f\n",
-                    canMsg.getCanId(),
-                    static_cast<float>(inverter.getActualValues2().tempMotor) * 0.1,
-                    static_cast<float>(inverter.getActualValues2().tempInverter) * 0.1,
-                    inverter.getActualValues2().errorInfo,
-                    static_cast<float>(inverter.getActualValues2().tempIGBT) * 0.1);
+
+        Serial.printf("ID: 0x%X\n", canMsg.getCanId());
+        Serial.printf("Motor temperature: %f\n", (float)inverter.getActualValues2().tempMotor * 0.1);
+        Serial.printf("Inverter temperature: %f\n", (float)inverter.getActualValues2().tempInverter * 0.1);
+        Serial.printf("Error: %d\n", inverter.getActualValues2().errorInfo);
+        Serial.printf("IGBT temperature: %f\n", (float)inverter.getActualValues2().tempIGBT * 0.1);
         break;
       default:
         break;
