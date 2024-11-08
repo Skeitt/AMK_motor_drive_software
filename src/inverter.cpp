@@ -33,12 +33,12 @@ void Inverter::checkStatus()
 {
     uint16_t status = m_actualValues1->status;
 
-    if ((status & 0xFF00) == (bSystemReady | bDerating))
+    if (((status & 0xFF00) == (bSystemReady | bDerating)) || ((status & 0xFF00) == (bSystemReady)))
     {
         m_state = LV_ON;
         Serial.printf("LV circuit enabled\n");
     }
-    else if (((status & 0xFF00) == (bSystemReady)) || ((status & 0x7FFF) == (bSystemReady | bDcOn)))
+    else if (((status & 0xFF00) == (bSystemReady)) || ((status & 0xFF00) == (bSystemReady | bDcOn)))
     {
         m_state = HV_ON;
         Serial.printf("HV circuit enabled\n");

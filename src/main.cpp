@@ -75,9 +75,9 @@ void startCANBus(long speed)
 
 void receiveMessage(int packetSize)
 {
+  canMsg.setCanId(CAN.packetId());
   if (CAN.available() >= packetSize)
   {
-    canMsg.setCanId(CAN.packetId());
     uint16_t nodeAddress = getNodeAddressFromCANId(canMsg.getCanId());
     if (nodeAddress != 0)
     {
@@ -116,7 +116,7 @@ bool sendMessage(CANMessage canMsg)
 
 void updateInverter(uint16_t nodeAddress, uint16_t baseAddress, CANMessage canMsg)
 {
-  Serial.printf("packet: %X %X %X %X %X %X %X %X\n",
+  Serial.printf("Received packet: %X %X %X %X %X %X %X %X\n",
                       canMsg.m_data[0],
                       canMsg.m_data[1],
                       canMsg.m_data[2],
