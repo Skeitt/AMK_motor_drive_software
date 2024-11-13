@@ -7,9 +7,9 @@
 Inverter::Inverter(const uint16_t t_nodeAddress)
 {
     m_nodeAddress = t_nodeAddress;
-    m_actualValues1 = new ActualValues1();
-    m_actualValues2 = new ActualValues2();
-    m_setpoints1 = new Setpoints1();
+    m_actualValues1 = ActualValues1();
+    m_actualValues2 = ActualValues2();
+    m_setpoints1 = Setpoints1();
     m_state = IDLE;
 };
 
@@ -17,21 +17,21 @@ uint16_t Inverter::getNodeAddress() const { return m_nodeAddress; };
 
 InverterState Inverter::getState() const { return m_state; };
 
-ActualValues1 Inverter::getActualValues1() const { return *m_actualValues1; };
+ActualValues1 Inverter::getActualValues1() const { return m_actualValues1; };
 
-ActualValues2 Inverter::getActualValues2() const { return *m_actualValues2; };
+ActualValues2 Inverter::getActualValues2() const { return m_actualValues2; };
 
-Setpoints1 Inverter::getSetpoints1() const { return *m_setpoints1; };
+Setpoints1 Inverter::getSetpoints1() const { return m_setpoints1; };
 
-void Inverter::setActualValues1(ActualValues1 t_actualValues1) { m_actualValues1 = &t_actualValues1; };
+void Inverter::setActualValues1(ActualValues1 t_actualValues1) { m_actualValues1 = t_actualValues1; };
 
-void Inverter::setActualValues2(ActualValues2 t_actualValues2) { m_actualValues2 = &t_actualValues2; };
+void Inverter::setActualValues2(ActualValues2 t_actualValues2) { m_actualValues2 = t_actualValues2; };
 
-void Inverter::setSetpoints1(Setpoints1 t_setpoints1) { m_setpoints1 = &t_setpoints1; };
+void Inverter::setSetpoints1(Setpoints1 t_setpoints1) { m_setpoints1 = t_setpoints1; };
 
 void Inverter::checkStatus()
 {
-    uint16_t status = m_actualValues1->status;
+    uint16_t status = m_actualValues1.status;
 
     if (((status & 0xFF00) == (bSystemReady | bDerating)) || ((status & 0xFF00) == (bSystemReady)))
     {
@@ -118,9 +118,9 @@ void Inverter::activate()
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
         delay(DELAY);
 
-        error = getError(m_actualValues2->errorInfo);
+        error = getError(m_actualValues2.errorInfo);
         Serial.printf("Error code: %d (%s), Error class: %s\n",
-                      m_actualValues2->errorInfo,
+                      m_actualValues2.errorInfo,
                       error.first,
                       error.second);
 

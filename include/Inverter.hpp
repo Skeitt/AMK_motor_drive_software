@@ -11,9 +11,9 @@ class Inverter
 {
 private:
     uint16_t m_nodeAddress;         ///< Node address of the inverter.
-    ActualValues1 *m_actualValues1; ///< Pointer to the Actual Values 1 data of the inverter.
-    ActualValues2 *m_actualValues2; ///< Pointer to the Actual Values 2 data of the inverter.
-    Setpoints1 *m_setpoints1;       ///< Pointer to the Setpoints 1 data of the inverter.
+    ActualValues1 m_actualValues1; ///< Pointer to the Actual Values 1 data of the inverter.
+    ActualValues2 m_actualValues2; ///< Pointer to the Actual Values 2 data of the inverter.
+    Setpoints1 m_setpoints1;       ///< Pointer to the Setpoints 1 data of the inverter.
     InverterState m_state;          ///< Current state of the inverter.
 
 public:
