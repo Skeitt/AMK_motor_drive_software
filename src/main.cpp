@@ -108,6 +108,16 @@ void receiveMessage(int packetSize)
 
 bool sendMessage(CANMessage canMsg)
 {
+  Serial.printf("Sending packet: %X %X %X %X %X %X %X %X\n",
+                canMsg.m_data[0],
+                canMsg.m_data[1],
+                canMsg.m_data[2],
+                canMsg.m_data[3],
+                canMsg.m_data[4],
+                canMsg.m_data[5],
+                canMsg.m_data[6],
+                canMsg.m_data[7]);
+
   CAN.beginPacket(canMsg.getCanId());
   size_t bytesSent = CAN.write(canMsg.m_data, 8);
   CAN.endPacket();
@@ -134,6 +144,7 @@ void updateInverter(uint16_t nodeAddress, uint16_t baseAddress, CANMessage canMs
       {
       case ACTUAL_VALUES_1_BASE_ADDRESS:
         inverter.setActualValues1(parseActualValues1(canMsg.m_data));
+        
         Serial.printf("ID: 0x%X\n", canMsg.getCanId());
         Serial.printf("Status: %X\n", inverter.getActualValues1().status);
         Serial.printf("Actual Velocity: %d\n", inverter.getActualValues1().actualVelocity);

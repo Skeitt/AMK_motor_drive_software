@@ -2,7 +2,7 @@
 #include "CANCommunication.hpp"
 #include <Arduino.h>
 
-#define DELAY 30
+#define DELAY 10
 
 Inverter::Inverter(const uint16_t t_nodeAddress)
 {
@@ -33,28 +33,27 @@ void Inverter::checkStatus()
 {
     uint16_t status = m_actualValues1.status;
 
-    if (((status & 0xFF00) == (bSystemReady | bDerating)) || ((status & 0xFF00) == (bSystemReady)))
+    if(status == (bSystemReady | bDerating)) //0x8100
     {
         m_state = LV_ON;
         Serial.printf("LV circuit enabled\n");
     }
-    else if (((status & 0xFF00) == (bSystemReady)) || ((status & 0xFF00) == (bSystemReady | bDcOn)))
+    else if ((status == (bSystemReady)) || (status == (bSystemReady | bDcOn))) //0x0100 o 0x1100
     {
         m_state = HV_ON;
         Serial.printf("HV circuit enabled\n");
     }
-    else if ((status & 0xFF00) == (bSystemReady | bDcOn | bQuitDcOn))
+    else if ((status == (bSystemReady | bDcOn | bQuitDcOn)) || (status == (bSystemReady | bDcOn | bQuitDcOn | bInverterOn))) //0x1900 o 0x5900
     {
         m_state = READY;
         Serial.printf("DcOn enabled\n");
     }
-    // considera di aggiungere uno stato tra bInverterOn e bQuitInverterOn
-    else if ((status & 0xFF00) == (bSystemReady | bDcOn | bQuitDcOn | bInverterOn | bQuitInverterOn))
+    else if (status == (bSystemReady | bDcOn | bQuitDcOn | bInverterOn | bQuitInverterOn)) //0x7900
     {
         m_state = CONTROLLER_ACTIVE;
         Serial.printf("Controller enabled\n");
     }
-    else if (status & bError)
+    else if (status & bError) //0xY200
     {
         m_state = ERROR;
         Serial.printf("Error detected\n");
@@ -127,11 +126,11 @@ void Inverter::activate()
         // TODO: remove error based on error removal message field
 
         Serial.printf("Resetting error...\n");
-        setSetpoints1(Setpoints1{cbDcOn | cbEnable | cbErrorReset, 0, 0, 0});
+        setSetpoints1(Setpoints1{cbErrorReset, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
         delay(DELAY);
 
-        setSetpoints1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
+        setSetpoints1(Setpoints1{0, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
         delay(DELAY);
         break;
