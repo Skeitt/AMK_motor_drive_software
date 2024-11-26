@@ -113,7 +113,7 @@ void Inverter::activate()
         break;
     case ERROR:
         Serial.printf("Disabling controller...\n");
-        setSetpoints1(Setpoints1{cbDcOn | cbEnable, 0, 0, 0});
+        setSetpoints1(Setpoints1{0, 0, 0, 0});
         sendMessage(parseSetpoints1(getSetpoints1(), getNodeAddress()));
         delay(DELAY);
 
